@@ -879,6 +879,8 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   window._animateToggleOnPreShow = false;
   // guard to note that the pre-welcome page has been displayed at least once
   window._preShown = window._preShown || false;
+  // prevent welcome flow until user has dismissed the sound warning overlay
+  window._soundWarningDismissed = window._soundWarningDismissed || false;
 
   // main initialization — wrapped so we can delay it on mobile
   function startEverything() {
@@ -1464,6 +1466,8 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             // prevent clicks from leaking through to the portal UI underneath
             e.stopPropagation();
             e.preventDefault();
+            // user has acknowledged the sound warning now
+            window._soundWarningDismissed = true;
             // mark that we want the portal toggle to animate when the pre section shows
             window._animateToggleOnPreShow = true;
 
@@ -1567,6 +1571,13 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 (function(){
     // hide pre-welcome and start the welcome sequence
     function hidePreWelcomeAndStartWelcome() {
+        // block if sound warning hasn't been acknowledged yet; this covers the
+        // scenario where the user clicks the portal toggle/continue very early
+        // (before the warning had even appeared or been dismissed).
+        if (!window._soundWarningDismissed) {
+            console.log('hidePreWelcomeAndStartWelcome blocked until sound warning dismissed');
+            return;
+        }
         // if the pre-welcome page has never been shown yet, ignore early calls
         // (happens when the 'Got it' click propagates through the sound overlay
         // before the portal/pre section is revealed). Only apply this guard on
@@ -2494,6 +2505,8 @@ OS: Horizon OS 1.0
                                     ok.addEventListener('click', async (e) => {
                                         e.stopPropagation();
                                         e.preventDefault();
+                                        // mark warning dismissed
+                                        window._soundWarningDismissed = true;
                                         overlay.remove();
 
                                         if (!playIntro) {

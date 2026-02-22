@@ -366,6 +366,11 @@
         let redirected = false;
         const redirectAfterFade = () => {
           if (redirected) return;
+          // block accidental portal clicks until sound warning is cleared
+          if (!window._soundWarningDismissed) {
+              console.log('redirectAfterFade blocked until sound warning dismissed');
+              return;
+          }
           redirected = true;
           // hide the portal overlay and start the welcome sequence
           window._allowWelcome = true;
@@ -732,6 +737,9 @@
       textElems.forEach(el => (el.style.color = '#111'));
     }
 
+    // global guard: portal/welcome must wait until user has dismissed the sound warning
+    window._soundWarningDismissed = window._soundWarningDismissed || false;
+
     // Show the audio notice overlay on every visit; play the intro video only on first visit.
     function continueApp() {
       if (isMobileDevice) showMobileBlockScreenScoped(); else startEverything();
@@ -812,6 +820,8 @@
             // prevent this click from reaching anything underneath (portal toggle/continue)
             e.stopPropagation();
             e.preventDefault();
+            // mark warning dismissed now that user interacted
+            window._soundWarningDismissed = true;
             // remove the audio notice overlay
             overlay.remove();
 
