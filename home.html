@@ -860,65 +860,14 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
       </svg>
       
   <script>
-// NOTE: cookie is now written when the user actually accepts the audio
-  // warning. we keep a simple flag to know whether this is the first visit.
-  window._isFirstVisit = !document.cookie.includes("visited=true");
-  window._deferIntroUntilPortal = false; // set when pre-welcome flow is active
-  window._shouldPlayIntroAfterPortal = false; // queued by sound-warning click
-
-  // helper used when an intro video was deferred; shows the video full-screen
-  // then removes the overlay when it finishes. similar to logic inside
-  // showSoundWarning but decoupled from the warning UI.
-  function playDeferredIntroVideo() {
-      const vOverlay = document.createElement('div');
-      vOverlay.style.position = 'fixed';
-      vOverlay.style.inset = '0';
-      vOverlay.style.zIndex = '2147483660';
-      vOverlay.style.display = 'flex';
-      vOverlay.style.alignItems = 'center';
-      vOverlay.style.justifyContent = 'center';
-      vOverlay.style.background = '#000';
-
-      const video = document.createElement('video');
-      video.src = 'videos/weWereLiedTo.mp4';
-      video.autoplay = false;
-      video.playsInline = true;
-      video.controls = false;
-      video.preload = 'auto';
-      video.volume = 0.25;
-      video.style.maxWidth = '100%';
-      video.style.maxHeight = '100%';
-      video.style.width = '100%';
-      video.style.height = '100%';
-
-      vOverlay.appendChild(video);
-      vOverlay.style.background = '#000';
-      vOverlay.style.transition = '';
-      document.body.appendChild(vOverlay);
-
-      video.play().catch((err) => {
-          console.log('Deferred intro video play failed or was blocked:', err);
-          vOverlay.remove();
-          return;
-      });
-
-      let fadeStarted = false;
-      const fadeStart = 46.67;
-      const fadeDuration = 2;
-      const onTime = () => {
-          const t = video.currentTime;
-          if (!fadeStarted && t >= fadeStart) {
-              fadeStarted = true;
-              vOverlay.style.transition = `background ${fadeDuration}s linear`;
-              vOverlay.style.background = '#fff';
-          }
-      };
-      video.addEventListener('timeupdate', onTime);
-      video.addEventListener('ended', () => {
-          video.removeEventListener('timeupdate', onTime);
-          vOverlay.remove();
-      }, { once: true });
-  }
+    // Check if user has visited before using cookies
+    const isFirstVisit = !document.cookie.includes("visited=true");
+    if (isFirstVisit) {
+      console.log("First visit to the site.");
+      document.cookie = "visited=true; max-age=31536000; path=/"; // Expires in 1 year
+    } else {
+      console.log("User has visited the site before.");
+    }
 
     
 
@@ -930,6 +879,10 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   window._animateToggleOnPreShow = false;
   // guard to note that the pre-welcome page has been displayed at least once
   window._preShown = window._preShown || false;
+  // only when the user explicitly opens the portal or clicks continue
+  // may we proceed to the full welcome. prevents accidental triggers from
+  // unrelated clicks (e.g. on the audio warning) or race conditions.
+  window._userClearedPortal = false;
 
   // main initialization — wrapped so we can delay it on mobile
   function startEverything() {
@@ -1437,16 +1390,8 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     // kick off loading now even if not in DOM
     _soundWarningBgVideo.load();
 
-    // always show the audio notice; on pages that use the pre‑welcome
-    // portal we don't invoke the warning early – the window.load handler
-    // will take care of it instead. this prevents an immediate click from
-    // firing the welcome flow/video and skipping the portal.
-    const prePage = document.getElementById('pre-welcome-page');
-    if (!prePage) {
-        showSoundWarning(continueApp, window._isFirstVisit);
-    } else {
-        console.log('audio notice deferred until load event (pre-page present)');
-    }
+    // always show the audio notice; pass `isFirstVisit` so the intro video can be gated
+    showSoundWarning(continueApp, isFirstVisit);
 
     // Sound warning / audio-notice dialog (always shown). `playIntro` controls whether the intro video runs.
     function showSoundWarning(onDone, playIntro = false) {
@@ -1526,23 +1471,11 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             // mark that we want the portal toggle to animate when the pre section shows
             window._animateToggleOnPreShow = true;
 
-            // set visited cookie if first time
-            if (window._isFirstVisit) {
-                document.cookie = "visited=true; max-age=31536000; path=/";
-                window._isFirstVisit = false;
-            }
-
             // remove the audio notice overlay
             overlay.remove();
 
-            // If this is NOT the user's first visit, or if video was suppressed,
-            // skip the intro video and continue immediately.
-            const playIntroNow = playIntro && !window._deferIntroUntilPortal;
-            if (!playIntroNow) {
-              if (playIntro && window._deferIntroUntilPortal) {
-                  // queue for later after portal
-                  window._shouldPlayIntroAfterPortal = true;
-              }
+            // If this is NOT the user's first visit, skip the intro video and continue immediately.
+            if (!playIntro) {
               if (onDone) onDone();
               return;
             }
@@ -1638,13 +1571,19 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 (function(){
     // hide pre-welcome and start the welcome sequence
     function hidePreWelcomeAndStartWelcome() {
+        // Only allow the full welcome to start if the user has actively
+        // cleared the portal (via the toggle or continue button). This stops
+        // spurious invocations from races or fast clicks on overlays.
+        if (!window._userClearedPortal) {
+            console.log('hidePreWelcomeAndStartWelcome ignored – user did not clear portal');
+            return;
+        }
         // if the pre-welcome page has never been shown yet, ignore early calls
         // (happens when the 'Got it' click propagates through the sound overlay
         // before the portal/pre section is revealed). Only apply this guard on
         // remote loads; local file browsing doesn't exhibit the issue.
         if (!window._preShown && window.location.protocol.startsWith('http')) {
-            console.log('hidePreWelcomeAndStartWelcome called before pre-welcome shown; deferring');
-            window._deferredHide = true;
+            console.log('hidePreWelcomeAndStartWelcome called before pre-welcome shown; ignoring');
             return;
         }
         // mark that welcome may now run
@@ -1669,14 +1608,6 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         } catch (e) {
             console.log('error stopping portal audio', e);
         }
-        // if we queued an intro video because the user accepted the audio
-        // warning before the portal was shown, play it now (after we hide the
-        // pre-welcome UI but before we actually start the welcome splash).
-        if (window._shouldPlayIntroAfterPortal) {
-            window._shouldPlayIntroAfterPortal = false;
-            playDeferredIntroVideo();
-        }
-
         if (window.startWelcome) window.startWelcome();
     }
 
@@ -1741,8 +1672,28 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         setTimeout(() => { triggerWhiteFlash(); }, 520);
     }
 
-    toggle && toggle.addEventListener('click', toggleState);
-    cont && cont.addEventListener('click', hidePreWelcomeAndStartWelcome);
+    toggle && toggle.addEventListener('click', (e) => {
+        if (!window._preShown) {
+            e.stopPropagation();
+            e.preventDefault();
+            console.log('portal toggle click ignored until pre-welcome visible');
+            return;
+        }
+        // indicate the user explicitly opened the portal
+        window._userClearedPortal = true;
+        toggleState();
+    });
+    cont && cont.addEventListener('click', (e) => {
+        if (!window._preShown) {
+            e.stopPropagation();
+            e.preventDefault();
+            console.log('pre-welcome continue click ignored until page visible');
+            return;
+        }
+        // user opted to bypass the portal
+        window._userClearedPortal = true;
+        hidePreWelcomeAndStartWelcome();
+    });
     window.mergedTriggerWhiteFlash = triggerWhiteFlash;
 })();
 </script>
@@ -2527,9 +2478,10 @@ OS: Horizon OS 1.0
 
                         // Insert original sound-warning overlay and gate the pre-welcome page behind it.
                         // Cookie check to gate intro video on first visit (copied from index.html)
-                        // note: cookie is handled when the user actually accepts the
-                        // audio warning; we no longer set it unconditionally here.
                         const isFirstVisit = !document.cookie.includes("visited=true");
+                        if (isFirstVisit) {
+                                document.cookie = "visited=true; max-age=31536000; path=/"; // Expires in 1 year
+                        }
 
                         // Original showSoundWarning implementation (copied verbatim from index.html)
                         function showSoundWarning(onDone, playIntro = false) {
@@ -2572,20 +2524,12 @@ OS: Horizon OS 1.0
                                     ok.addEventListener('click', async (e) => {
                                         e.stopPropagation();
                                         e.preventDefault();
+                                        overlay.remove();
 
-                // mark visit cookie
-                if (window._isFirstVisit) {
-                    document.cookie = "visited=true; max-age=31536000; path=/";
-                    window._isFirstVisit = false;
-                }
-
-                overlay.remove();
-
-                const playIntroNow = playIntro && !window._deferIntroUntilPortal;
-                if (!playIntroNow) {
-                    if (playIntro && window._deferIntroUntilPortal) {
-                        window._shouldPlayIntroAfterPortal = true;
-                    }
+                                        if (!playIntro) {
+                                            if (onDone) onDone();
+                                            return;
+                                        }
 
                                         const vOverlay = document.createElement('div');
                                         vOverlay.style.position = 'fixed';
@@ -2688,30 +2632,11 @@ OS: Horizon OS 1.0
                                                     window._animateToggleOnPreShow = false;
                                                 }
                                         }
-                                        // if an earlier click had attempted to hide the pre page before it was shown,
-                                        // run the hide logic now that it's visible.
-                                        if (window._deferredHide) {
-                                            delete window._deferredHide;
-                                            if (typeof hidePreWelcomeAndStartWelcome === 'function') {
-                                                hidePreWelcomeAndStartWelcome();
-                                            }
-                                        }
                                 };
 
-                                // showSoundWarning will call showPre when user clicks 'Got it'.
-                                // for the portal/pre-welcome flow we intentionally disable
-                                // the intro video; otherwise clicking the warning as soon as
-                                // the page loads will play the video and postpone the
-                                // portal, which is what we're trying to avoid.
+                                // showSoundWarning will call showPre when user clicks 'Got it' (and playIntro if first visit)
                                 try {
-                                        // when we display the warning as part of the
-                                // pre-welcome flow we want to defer the intro video
-                                // until *after* the portal has been cleared.
-                                window._deferIntroUntilPortal = true;
-                                // playIntro parameter is the original first‑visit flag; if
-                                // true the video will be queued and played after the
-                                // portal is cleared (see click handler logic above).
-                                showSoundWarning(showPre, window._isFirstVisit);
+                                        showSoundWarning(showPre, isFirstVisit);
                                 } catch (e) {
                                         // fallback: just show pre-welcome (no animation since user didn't click)
                                         showPre();
