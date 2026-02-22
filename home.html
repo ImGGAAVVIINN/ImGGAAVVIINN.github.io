@@ -1458,7 +1458,9 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         const ok = overlay.querySelector('#sound-ok');
 
         if (ok) {
-          ok.addEventListener('click', async () => {
+          ok.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             // mark that we want the portal toggle to animate when the pre section shows
             window._animateToggleOnPreShow = true;
 
@@ -1562,6 +1564,15 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 (function(){
     // hide pre-welcome and start the welcome sequence
     function hidePreWelcomeAndStartWelcome() {
+        // if the page hasn't finished loading yet we don't want to run the
+        // welcome sequence – clicking "Got it" right on load used to hit this
+        // path before the sound-overlay had even rendered, which caused the
+        // splash to start immediately. bail out so the normal load handler can
+        // trigger things later when it's safe.
+        if (document.readyState !== 'complete') {
+            return;
+        }
+
         // mark that welcome may now run
         window._allowWelcome = true;
         const pre = document.getElementById('pre-welcome-page');
@@ -1649,7 +1660,21 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     }
 
     toggle && toggle.addEventListener('click', toggleState);
-    cont && cont.addEventListener('click', hidePreWelcomeAndStartWelcome);
+    if (cont) {
+        cont.addEventListener('click', (e) => {
+            // ignore any clicks that happen before the pre‑welcome page has been
+            // shown. users who mash the screen the instant the page loads were
+            // effectively clicking the underlying pre-welcome "continue" button
+            // before the sound overlay had a chance to render, which immediately
+            // triggers the welcome sequence. guard against that by checking the
+            // pre element's visibility and bailing out if it's still hidden.
+            const pre = document.getElementById('pre-welcome-page');
+            if (!pre || getComputedStyle(pre).display === 'none') {
+                return;
+            }
+            hidePreWelcomeAndStartWelcome();
+        });
+    }
     window.mergedTriggerWhiteFlash = triggerWhiteFlash;
 })();
 </script>
@@ -2477,7 +2502,9 @@ OS: Horizon OS 1.0
 
                                 const ok = overlay.querySelector('#sound-ok');
                                 if (ok) {
-                                    ok.addEventListener('click', async () => {
+                                    ok.addEventListener('click', async (e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
                                         overlay.remove();
 
                                         if (!playIntro) {
