@@ -738,7 +738,13 @@
     }
 
     // always show the audio notice; pass `isFirstVisit` so the intro video can be gated
-    showSoundWarning(continueApp, isFirstVisit);
+    showSoundWarning(() => {
+        if (typeof window._showPre === 'function') {
+            window._showPre();
+        } else {
+            continueApp();
+        }
+    }, isFirstVisit);
 
     // Sound warning / audio-notice dialog (always shown). `playIntro` controls whether the intro video runs.
     function showSoundWarning(onDone, playIntro = false) {
@@ -812,9 +818,36 @@
             // remove the audio notice overlay
             overlay.remove();
 
+            // helper ensures callback runs after DOM is ready, preventing early
+            // execution that could skip the pre-welcome portal when user clicks
+            // immediately (e.g. over slow/remote connections). it also waits an
+            // extra tick after DOMContentLoaded so that any listeners which
+            // register during that event (such as the one defining the portal
+            // helper) have a chance to run.
+            const scheduleOnDone = () => {
+              const tryCall = () => {
+                if (typeof window._showPre === 'function') {
+                  window._showPre();
+                } else if (onDone) {
+                  onDone();
+                }
+              };
+              if (document.readyState !== 'complete') {
+                window.addEventListener('DOMContentLoaded', () => {
+                  setTimeout(tryCall, 0);
+                }, { once: true });
+              } else {
+                setTimeout(tryCall, 0);
+              }
+            };
+
             // If this is NOT the user's first visit, skip the intro video and continue immediately.
             if (!playIntro) {
-              if (onDone) onDone();
+              if (document.readyState !== 'complete') {
+                window.addEventListener('DOMContentLoaded', scheduleOnDone, { once: true });
+              } else {
+                scheduleOnDone();
+              }
               return;
             }
 

@@ -1385,7 +1385,14 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     _soundWarningBgVideo.load();
 
     // always show the audio notice; pass `isFirstVisit` so the intro video can be gated
-    showSoundWarning(continueApp, isFirstVisit);
+    showSoundWarning(() => {
+        // if the pre‑welcome portal helper is available, show it; otherwise continue normally
+        if (typeof window._showPre === 'function') {
+            window._showPre();
+        } else {
+            continueApp();
+        }
+    }, isFirstVisit);
 
     // Sound warning / audio-notice dialog (always shown). `playIntro` controls whether the intro video runs.
     function showSoundWarning(onDone, playIntro = false) {
@@ -1462,18 +1469,38 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             // mark that we want the portal toggle to animate when the pre section shows
             window._animateToggleOnPreShow = true;
 
-            // remove the audio notice overlay immediately so underlying UI can appear
+            // remove the audio notice overlay
             overlay.remove();
 
-            // If this is NOT the user's first visit, skip the intro video and continue
-            // after a tick. the small timeout ensures the click event has fully
-            // finished and prevents the same interaction from hitting the
-            // pre-welcome "continue" button or toggle if it happens to appear
-            // underneath the pointer. this race only manifests on slow/remote
-            // connections when users click the moment the page loads.
+            // helper ensures callback runs after DOM is ready, preventing early
+            // execution that could skip the pre-welcome portal when user clicks
+            // immediately (e.g. over slow/remote connections). it also waits an
+            // extra tick after DOMContentLoaded so that any listeners which
+            // register during that event (such as the one defining the portal
+            // helper) have a chance to run.
+            const scheduleOnDone = () => {
+              const tryCall = () => {
+                if (typeof window._showPre === 'function') {
+                  window._showPre();
+                } else if (onDone) {
+                  onDone();
+                }
+              };
+              if (document.readyState !== 'complete') {
+                window.addEventListener('DOMContentLoaded', () => {
+                  setTimeout(tryCall, 0);
+                }, { once: true });
+              } else {
+                setTimeout(tryCall, 0);
+              }
+            };
+
+            // If this is NOT the user's first visit, skip the intro video and continue immediately.
             if (!playIntro) {
-              if (onDone) {
-                setTimeout(onDone, 0);
+              if (document.readyState !== 'complete') {
+                window.addEventListener('DOMContentLoaded', scheduleOnDone, { once: true });
+              } else {
+                scheduleOnDone();
               }
               return;
             }
@@ -2487,18 +2514,36 @@ OS: Horizon OS 1.0
                                     ok.addEventListener('click', async () => {
                                         overlay.remove();
 
-                                        // Delay the onDone callback slightly so that a fast
-                                        // follow‑up click (or the same click via remote
-                                        // latency) doesn't immediately hit the pre-welcome
-                                        // "continue" control and jump straight to the
-                                        // welcome screen. This bug tended to only occur on
-                                        // remote connections where timing was tight.
+                                        // helper ensures callback runs after DOM is ready, preventing early
+                                        // execution that could skip the pre-welcome portal when user clicks
+                                        // immediately (e.g. over slow/remote connections). it also waits an
+                                        // extra tick after DOMContentLoaded so that any listeners which
+                                        // register during that event have a chance to run.
+                                        const scheduleOnDone = () => {
+                                            const tryCall = () => {
+                                                if (typeof window._showPre === 'function') {
+                                                    window._showPre();
+                                                } else if (onDone) {
+                                                    onDone();
+                                                }
+                                            };
+                                            if (document.readyState !== 'complete') {
+                                                window.addEventListener('DOMContentLoaded', () => { setTimeout(tryCall, 0); }, { once: true });
+                                            } else {
+                                                setTimeout(tryCall, 0);
+                                            }
+                                        };
+
                                         if (!playIntro) {
-                                            if (onDone) {
-                                                setTimeout(onDone, 0);
+                                            if (document.readyState !== 'complete') {
+                                                window.addEventListener('DOMContentLoaded', scheduleOnDone, { once: true });
+                                            } else {
+                                                scheduleOnDone();
                                             }
                                             return;
                                         }
+
+                                        const vOverlay = document.createElement('div');
                                         vOverlay.style.position = 'fixed';
                                         vOverlay.style.inset = '0';
                                         vOverlay.style.zIndex = '2147483660';
@@ -2591,13 +2636,6 @@ OS: Horizon OS 1.0
                                                 welcomeProgressBar.style.opacity = '1';
                                         }
                                         if (pre) {
-                                                // temporarily disable pointer events on the pre page
-                                                // to avoid an immediate click (from the same "Got it"
-                                                // interaction) hitting the continue button or
-                                                // portal toggle. re-enable after a short delay.
-                                                pre.style.pointerEvents = 'none';
-                                                setTimeout(() => { pre.style.pointerEvents = ''; }, 50);
-
                                                 pre.style.display = 'flex';
                                                 if (window._animateToggleOnPreShow && window.showPortalToggleOnce) {
                                                     window.showPortalToggleOnce();
@@ -2605,6 +2643,8 @@ OS: Horizon OS 1.0
                                                 }
                                         }
                                 };
+                                // export for early callbacks that may fire before this block executes
+                                window._showPre = showPre;
 
                                 // showSoundWarning will call showPre when user clicks 'Got it' (and playIntro if first visit)
                                 try {
