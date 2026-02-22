@@ -883,6 +883,11 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   // may we proceed to the full welcome. prevents accidental triggers from
   // unrelated clicks (e.g. on the audio warning) or race conditions.
   window._userClearedPortal = false;
+  // ignore portal clicks for a short period after the pre‑page is shown,
+  // which is when the “Got it” dialog disappears. this prevents a rapid
+  // second tap/click from the same pointer from opening the portal
+  // unintentionally.
+  window._portalClickIgnoreUntil = 0;
 
   // main initialization — wrapped so we can delay it on mobile
   function startEverything() {
@@ -1571,6 +1576,7 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 (function(){
     // hide pre-welcome and start the welcome sequence
     function hidePreWelcomeAndStartWelcome() {
+        console.log('hidePreWelcomeAndStartWelcome invoked', { preShown: window._preShown, userCleared: window._userClearedPortal });
         // Only allow the full welcome to start if the user has actively
         // cleared the portal (via the toggle or continue button). This stops
         // spurious invocations from races or fast clicks on overlays.
@@ -1679,6 +1685,13 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             console.log('portal toggle click ignored until pre-welcome visible');
             return;
         }
+        // drop clicks that occur too soon after the overlay went away
+        if (Date.now() < (window._portalClickIgnoreUntil || 0)) {
+            e.stopPropagation();
+            e.preventDefault();
+            console.log('portal toggle click ignored (cooldown)');
+            return;
+        }
         // indicate the user explicitly opened the portal
         window._userClearedPortal = true;
         toggleState();
@@ -1688,6 +1701,12 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             e.stopPropagation();
             e.preventDefault();
             console.log('pre-welcome continue click ignored until page visible');
+            return;
+        }
+        if (Date.now() < (window._portalClickIgnoreUntil || 0)) {
+            e.stopPropagation();
+            e.preventDefault();
+            console.log('pre-welcome continue click ignored (cooldown)');
             return;
         }
         // user opted to bypass the portal
@@ -2397,9 +2416,11 @@ OS: Horizon OS 1.0
             }
 
             function startWelcome() {
-                // only allow once portal has been cleared
-                if (!window._allowWelcome) {
-                    console.log('startWelcome blocked until pre-welcome cleared');
+                // only allow once portal has been cleared *and* the user actually
+                // opened/continued the portal. this second guard stops the start
+                // from running due to any stray state or timing issue.
+                if (!window._allowWelcome || !window._userClearedPortal) {
+                    console.log('startWelcome blocked; portal not cleared or user action missing', window._allowWelcome, window._userClearedPortal);
                     return;
                 }
                 // If the pre-welcome page is still visible, defer starting the welcome

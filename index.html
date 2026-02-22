@@ -203,6 +203,9 @@
   <script>
     // Check if user has visited before using cookies
     const isFirstVisit = !document.cookie.includes("visited=true");
+  // flags for portal gating (mirror home.html logic)
+  window._userClearedPortal = false;
+  window._portalClickIgnoreUntil = 0;
     if (isFirstVisit) {
       console.log("First visit to the site.");
       document.cookie = "visited=true; max-age=31536000; path=/"; // Expires in 1 year
@@ -325,6 +328,15 @@
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (mutation.attributeName === 'aria-pressed') {
+            // ignore toggles triggered immediately after the sound overlay
+            if (Date.now() < (window._portalClickIgnoreUntil || 0)) {
+              console.log('toggle mutation ignored due to cooldown');
+              // restore previous state to avoid accidental change
+              toggle.setAttribute('aria-pressed', mutation.oldValue || 'false');
+              return;
+            }
+            // mark that user has now intentionally opened the portal
+            window._userClearedPortal = true;
             const isPressed = toggle.getAttribute('aria-pressed') === 'true';
             const currentTime = audioContext.currentTime;
             
@@ -367,6 +379,11 @@
         const redirectAfterFade = () => {
           if (redirected) return;
           redirected = true;
+          // only run when user has explicitly cleared the portal
+          if (!window._userClearedPortal) {
+            console.log('redirectAfterFade skipped – portal not cleared');
+            return;
+          }
           // hide the portal overlay and start the welcome sequence
           window._allowWelcome = true;
           const pre = document.getElementById('pre-welcome-page');
@@ -812,6 +829,9 @@
             // prevent this click from reaching anything underneath (portal toggle/continue)
             e.stopPropagation();
             e.preventDefault();
+            // remember we just dismissed the warning; ignore any portal clicks for
+            // a short time in case the pointer remains down/over the toggle
+            window._portalClickIgnoreUntil = Date.now() + 300;
             // remove the audio notice overlay
             overlay.remove();
 
