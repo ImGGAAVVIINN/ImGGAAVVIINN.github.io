@@ -808,9 +808,7 @@
         const ok = overlay.querySelector('#sound-ok');
 
         if (ok) {
-          ok.addEventListener('click', async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
+          ok.addEventListener('click', async () => {
             // remove the audio notice overlay
             overlay.remove();
 

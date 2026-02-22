@@ -1458,18 +1458,23 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         const ok = overlay.querySelector('#sound-ok');
 
         if (ok) {
-          ok.addEventListener('click', async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
+          ok.addEventListener('click', async () => {
             // mark that we want the portal toggle to animate when the pre section shows
             window._animateToggleOnPreShow = true;
 
-            // remove the audio notice overlay
+            // remove the audio notice overlay immediately so underlying UI can appear
             overlay.remove();
 
-            // If this is NOT the user's first visit, skip the intro video and continue immediately.
+            // If this is NOT the user's first visit, skip the intro video and continue
+            // after a tick. the small timeout ensures the click event has fully
+            // finished and prevents the same interaction from hitting the
+            // pre-welcome "continue" button or toggle if it happens to appear
+            // underneath the pointer. this race only manifests on slow/remote
+            // connections when users click the moment the page loads.
             if (!playIntro) {
-              if (onDone) onDone();
+              if (onDone) {
+                setTimeout(onDone, 0);
+              }
               return;
             }
 
@@ -1564,15 +1569,6 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 (function(){
     // hide pre-welcome and start the welcome sequence
     function hidePreWelcomeAndStartWelcome() {
-        // if the page hasn't finished loading yet we don't want to run the
-        // welcome sequence – clicking "Got it" right on load used to hit this
-        // path before the sound-overlay had even rendered, which caused the
-        // splash to start immediately. bail out so the normal load handler can
-        // trigger things later when it's safe.
-        if (document.readyState !== 'complete') {
-            return;
-        }
-
         // mark that welcome may now run
         window._allowWelcome = true;
         const pre = document.getElementById('pre-welcome-page');
@@ -1660,21 +1656,7 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     }
 
     toggle && toggle.addEventListener('click', toggleState);
-    if (cont) {
-        cont.addEventListener('click', (e) => {
-            // ignore any clicks that happen before the pre‑welcome page has been
-            // shown. users who mash the screen the instant the page loads were
-            // effectively clicking the underlying pre-welcome "continue" button
-            // before the sound overlay had a chance to render, which immediately
-            // triggers the welcome sequence. guard against that by checking the
-            // pre element's visibility and bailing out if it's still hidden.
-            const pre = document.getElementById('pre-welcome-page');
-            if (!pre || getComputedStyle(pre).display === 'none') {
-                return;
-            }
-            hidePreWelcomeAndStartWelcome();
-        });
-    }
+    cont && cont.addEventListener('click', hidePreWelcomeAndStartWelcome);
     window.mergedTriggerWhiteFlash = triggerWhiteFlash;
 })();
 </script>
@@ -2502,17 +2484,21 @@ OS: Horizon OS 1.0
 
                                 const ok = overlay.querySelector('#sound-ok');
                                 if (ok) {
-                                    ok.addEventListener('click', async (e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
+                                    ok.addEventListener('click', async () => {
                                         overlay.remove();
 
+                                        // Delay the onDone callback slightly so that a fast
+                                        // follow‑up click (or the same click via remote
+                                        // latency) doesn't immediately hit the pre-welcome
+                                        // "continue" control and jump straight to the
+                                        // welcome screen. This bug tended to only occur on
+                                        // remote connections where timing was tight.
                                         if (!playIntro) {
-                                            if (onDone) onDone();
+                                            if (onDone) {
+                                                setTimeout(onDone, 0);
+                                            }
                                             return;
                                         }
-
-                                        const vOverlay = document.createElement('div');
                                         vOverlay.style.position = 'fixed';
                                         vOverlay.style.inset = '0';
                                         vOverlay.style.zIndex = '2147483660';
@@ -2605,6 +2591,13 @@ OS: Horizon OS 1.0
                                                 welcomeProgressBar.style.opacity = '1';
                                         }
                                         if (pre) {
+                                                // temporarily disable pointer events on the pre page
+                                                // to avoid an immediate click (from the same "Got it"
+                                                // interaction) hitting the continue button or
+                                                // portal toggle. re-enable after a short delay.
+                                                pre.style.pointerEvents = 'none';
+                                                setTimeout(() => { pre.style.pointerEvents = ''; }, 50);
+
                                                 pre.style.display = 'flex';
                                                 if (window._animateToggleOnPreShow && window.showPortalToggleOnce) {
                                                     window.showPortalToggleOnce();
