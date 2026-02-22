@@ -1385,14 +1385,7 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     _soundWarningBgVideo.load();
 
     // always show the audio notice; pass `isFirstVisit` so the intro video can be gated
-    showSoundWarning(() => {
-        // if the pre‑welcome portal helper is available, show it; otherwise continue normally
-        if (typeof window._showPre === 'function') {
-            window._showPre();
-        } else {
-            continueApp();
-        }
-    }, isFirstVisit);
+    showSoundWarning(continueApp, isFirstVisit);
 
     // Sound warning / audio-notice dialog (always shown). `playIntro` controls whether the intro video runs.
     function showSoundWarning(onDone, playIntro = false) {
@@ -1464,44 +1457,52 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 
         const ok = overlay.querySelector('#sound-ok');
 
+        // helper used by multiple places when we need to know if we're on a
+        // remote host (i.e. not local file or localhost). the bug only appears
+        // when the page is accessed over HTTP from another machine, so minimise
+        // impact by only activating additional guards in that case.
+        function isRemote() {
+          try {
+            const h = window.location.hostname;
+            const p = window.location.protocol;
+            if (p === 'file:') return false;
+            if (!h) return false;
+            if (h === 'localhost' || h === '127.0.0.1' || h === '::1') return false;
+            return true;
+          } catch (e) {
+            return false;
+          }
+        }
+
         if (ok) {
           ok.addEventListener('click', async () => {
+            // record the moment the user clicked "Got it" so we can ignore any
+            // stray follow-up clicks that might otherwise trigger welcome right
+            // away. the problem happens when the click event propagates into the
+            // newly‑shown pre‑welcome area (common with remote-control tools).
+            window._lastSoundOk = Date.now();
+
             // mark that we want the portal toggle to animate when the pre section shows
             window._animateToggleOnPreShow = true;
+
+            // if we're on a remote connection, temporarily disable the pre-
+            // welcome continue button; this prevents the same physical click from
+            // being delivered twice in rapid succession and accidentally kicking
+            // off the welcome sequence.
+            if (isRemote()) {
+              const cont = document.getElementById('pre-welcome-continue');
+              if (cont) {
+                cont.style.pointerEvents = 'none';
+                setTimeout(() => { cont.style.pointerEvents = ''; }, 500);
+              }
+            }
 
             // remove the audio notice overlay
             overlay.remove();
 
-            // helper ensures callback runs after DOM is ready, preventing early
-            // execution that could skip the pre-welcome portal when user clicks
-            // immediately (e.g. over slow/remote connections). it also waits an
-            // extra tick after DOMContentLoaded so that any listeners which
-            // register during that event (such as the one defining the portal
-            // helper) have a chance to run.
-            const scheduleOnDone = () => {
-              const tryCall = () => {
-                if (typeof window._showPre === 'function') {
-                  window._showPre();
-                } else if (onDone) {
-                  onDone();
-                }
-              };
-              if (document.readyState !== 'complete') {
-                window.addEventListener('DOMContentLoaded', () => {
-                  setTimeout(tryCall, 0);
-                }, { once: true });
-              } else {
-                setTimeout(tryCall, 0);
-              }
-            };
-
             // If this is NOT the user's first visit, skip the intro video and continue immediately.
             if (!playIntro) {
-              if (document.readyState !== 'complete') {
-                window.addEventListener('DOMContentLoaded', scheduleOnDone, { once: true });
-              } else {
-                scheduleOnDone();
-              }
+              if (onDone) onDone();
               return;
             }
 
@@ -1596,6 +1597,16 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 (function(){
     // hide pre-welcome and start the welcome sequence
     function hidePreWelcomeAndStartWelcome() {
+        // if the user clicked "Got it" very early on a remote connection we
+        // intentionally ignore the first invocation. the click often bubbles
+        // through to the pre‑welcome continue control and would immediately fire
+        // the welcome sequence, skipping the portal toggle audio/animation. we
+        // allow the user to click again once the UI has settled.
+        if (isRemote() && window._lastSoundOk && (Date.now() - window._lastSoundOk) < 500) {
+            console.log('premature welcome suppressed (early got-it click)');
+            return;
+        }
+
         // mark that welcome may now run
         window._allowWelcome = true;
         const pre = document.getElementById('pre-welcome-page');
@@ -2514,32 +2525,8 @@ OS: Horizon OS 1.0
                                     ok.addEventListener('click', async () => {
                                         overlay.remove();
 
-                                        // helper ensures callback runs after DOM is ready, preventing early
-                                        // execution that could skip the pre-welcome portal when user clicks
-                                        // immediately (e.g. over slow/remote connections). it also waits an
-                                        // extra tick after DOMContentLoaded so that any listeners which
-                                        // register during that event have a chance to run.
-                                        const scheduleOnDone = () => {
-                                            const tryCall = () => {
-                                                if (typeof window._showPre === 'function') {
-                                                    window._showPre();
-                                                } else if (onDone) {
-                                                    onDone();
-                                                }
-                                            };
-                                            if (document.readyState !== 'complete') {
-                                                window.addEventListener('DOMContentLoaded', () => { setTimeout(tryCall, 0); }, { once: true });
-                                            } else {
-                                                setTimeout(tryCall, 0);
-                                            }
-                                        };
-
                                         if (!playIntro) {
-                                            if (document.readyState !== 'complete') {
-                                                window.addEventListener('DOMContentLoaded', scheduleOnDone, { once: true });
-                                            } else {
-                                                scheduleOnDone();
-                                            }
+                                            if (onDone) onDone();
                                             return;
                                         }
 
@@ -2643,8 +2630,6 @@ OS: Horizon OS 1.0
                                                 }
                                         }
                                 };
-                                // export for early callbacks that may fire before this block executes
-                                window._showPre = showPre;
 
                                 // showSoundWarning will call showPre when user clicks 'Got it' (and playIntro if first visit)
                                 try {
