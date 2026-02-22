@@ -76,6 +76,9 @@ update()
 // the actual interaction we're going to do with GSAP here because I can't be bothered
 // to manage a CSS timeline for this with the bounce lol
 const toggleState = async () => {
+  // record that the user explicitly toggled the portal control
+  window._userClearedPortal = true;
+  console.log('scripts.js toggleState(): setting userClearedPortal flag');
   toggle.dataset.pressed = true
   if (config.bubble) toggle.dataset.active = true
   // if we use wiggle, don't await, instead jus' set a delay

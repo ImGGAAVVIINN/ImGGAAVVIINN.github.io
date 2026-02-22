@@ -883,11 +883,6 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   // may we proceed to the full welcome. prevents accidental triggers from
   // unrelated clicks (e.g. on the audio warning) or race conditions.
   window._userClearedPortal = false;
-  // ignore portal clicks for a short period after the pre‑page is shown,
-  // which is when the “Got it” dialog disappears. this prevents a rapid
-  // second tap/click from the same pointer from opening the portal
-  // unintentionally.
-  window._portalClickIgnoreUntil = 0;
 
   // main initialization — wrapped so we can delay it on mobile
   function startEverything() {
@@ -1576,7 +1571,6 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 (function(){
     // hide pre-welcome and start the welcome sequence
     function hidePreWelcomeAndStartWelcome() {
-        console.log('hidePreWelcomeAndStartWelcome invoked', { preShown: window._preShown, userCleared: window._userClearedPortal });
         // Only allow the full welcome to start if the user has actively
         // cleared the portal (via the toggle or continue button). This stops
         // spurious invocations from races or fast clicks on overlays.
@@ -1592,8 +1586,8 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             console.log('hidePreWelcomeAndStartWelcome called before pre-welcome shown; ignoring');
             return;
         }
-        // mark that welcome may now run
-        window._allowWelcome = true;
+        // hide the pre-welcome page and clean up visuals/audio; welcome itself
+        // is triggered explicitly by the user interaction that caused this call.
         const pre = document.getElementById('pre-welcome-page');
         if (pre) pre.style.display = 'none';
         // clear any white‑flash remnants so the welcome screen is visible
@@ -1614,7 +1608,7 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         } catch (e) {
             console.log('error stopping portal audio', e);
         }
-        if (window.startWelcome) window.startWelcome();
+        // note: do not start welcome here; caller should arrange it
     }
 
     const toggle = document.getElementById('merged-toggle');
@@ -1685,16 +1679,20 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             console.log('portal toggle click ignored until pre-welcome visible');
             return;
         }
-        // drop clicks that occur too soon after the overlay went away
-        if (Date.now() < (window._portalClickIgnoreUntil || 0)) {
+        // debounce immediate clicks after pre page appears
+        const now = performance.now();
+        if (window._preShownAt && now - window._preShownAt < 300) {
             e.stopPropagation();
             e.preventDefault();
-            console.log('portal toggle click ignored (cooldown)');
+            console.log('toggle click ignored due to preShownAt debounce (', now - window._preShownAt, 'ms)');
             return;
         }
         // indicate the user explicitly opened the portal
         window._userClearedPortal = true;
+        console.log('userClearedPortal flag set via toggle click');
         toggleState();
+        // trigger welcome (it will defer if pre-page still visible)
+        if (window.startWelcome) setTimeout(() => { window.startWelcome(); }, 0);
     });
     cont && cont.addEventListener('click', (e) => {
         if (!window._preShown) {
@@ -1703,15 +1701,11 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             console.log('pre-welcome continue click ignored until page visible');
             return;
         }
-        if (Date.now() < (window._portalClickIgnoreUntil || 0)) {
-            e.stopPropagation();
-            e.preventDefault();
-            console.log('pre-welcome continue click ignored (cooldown)');
-            return;
-        }
         // user opted to bypass the portal
         window._userClearedPortal = true;
+        console.log('userClearedPortal flag set via continue button');
         hidePreWelcomeAndStartWelcome();
+        if (window.startWelcome) setTimeout(() => { window.startWelcome(); }, 0);
     });
     window.mergedTriggerWhiteFlash = triggerWhiteFlash;
 })();
@@ -2416,11 +2410,17 @@ OS: Horizon OS 1.0
             }
 
             function startWelcome() {
-                // only allow once portal has been cleared *and* the user actually
-                // opened/continued the portal. this second guard stops the start
-                // from running due to any stray state or timing issue.
-                if (!window._allowWelcome || !window._userClearedPortal) {
-                    console.log('startWelcome blocked; portal not cleared or user action missing', window._allowWelcome, window._userClearedPortal);
+                // Only start welcome when the user has explicitly cleared the portal via
+                // the toggle or continue button. _userClearedPortal is set in those
+                // event handlers; without it the call should be ignored.
+                if (!window._userClearedPortal) {
+                    console.log('startWelcome blocked: user has not cleared portal');
+                    return;
+                }
+                // Also require that the pre-welcome page was shown at least once; this
+                // prevents stray early invocations from running the sequence.
+                if (!window._preShown) {
+                    console.log('startWelcome blocked: pre-welcome was never shown');
                     return;
                 }
                 // If the pre-welcome page is still visible, defer starting the welcome
@@ -2648,6 +2648,10 @@ OS: Horizon OS 1.0
                                                 pre.style.display = 'flex';
                                                 // mark that the pre-welcome page is now visible
                                                 window._preShown = true;
+                                                // record timestamp so we can ignore any near‑simultaneous
+                                                // toggle clicks (e.g. the same user gesture that hit the
+                                                // Got‑it button). see toggle click handler below.
+                                                window._preShownAt = performance.now();
                                                 if (window._animateToggleOnPreShow && window.showPortalToggleOnce) {
                                                     window.showPortalToggleOnce();
                                                     window._animateToggleOnPreShow = false;
