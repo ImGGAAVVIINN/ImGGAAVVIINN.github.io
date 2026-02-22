@@ -877,6 +877,8 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   window._toggleAnimationPlayed = window._toggleAnimationPlayed || false;
   // if true, run animation when pre-welcome section is next shown
   window._animateToggleOnPreShow = false;
+  // guard to note that the pre-welcome page has been displayed at least once
+  window._preShown = window._preShown || false;
 
   // main initialization — wrapped so we can delay it on mobile
   function startEverything() {
@@ -1457,45 +1459,13 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 
         const ok = overlay.querySelector('#sound-ok');
 
-        // helper used by multiple places when we need to know if we're on a
-        // remote host (i.e. not local file or localhost). the bug only appears
-        // when the page is accessed over HTTP from another machine, so minimise
-        // impact by only activating additional guards in that case.
-        function isRemote() {
-          try {
-            const h = window.location.hostname;
-            const p = window.location.protocol;
-            if (p === 'file:') return false;
-            if (!h) return false;
-            if (h === 'localhost' || h === '127.0.0.1' || h === '::1') return false;
-            return true;
-          } catch (e) {
-            return false;
-          }
-        }
-
         if (ok) {
-          ok.addEventListener('click', async () => {
-            // record the moment the user clicked "Got it" so we can ignore any
-            // stray follow-up clicks that might otherwise trigger welcome right
-            // away. the problem happens when the click event propagates into the
-            // newly‑shown pre‑welcome area (common with remote-control tools).
-            window._lastSoundOk = Date.now();
-
+          ok.addEventListener('click', async (e) => {
+            // prevent clicks from leaking through to the portal UI underneath
+            e.stopPropagation();
+            e.preventDefault();
             // mark that we want the portal toggle to animate when the pre section shows
             window._animateToggleOnPreShow = true;
-
-            // if we're on a remote connection, temporarily disable the pre-
-            // welcome continue button; this prevents the same physical click from
-            // being delivered twice in rapid succession and accidentally kicking
-            // off the welcome sequence.
-            if (isRemote()) {
-              const cont = document.getElementById('pre-welcome-continue');
-              if (cont) {
-                cont.style.pointerEvents = 'none';
-                setTimeout(() => { cont.style.pointerEvents = ''; }, 500);
-              }
-            }
 
             // remove the audio notice overlay
             overlay.remove();
@@ -1597,16 +1567,15 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 (function(){
     // hide pre-welcome and start the welcome sequence
     function hidePreWelcomeAndStartWelcome() {
-        // if the user clicked "Got it" very early on a remote connection we
-        // intentionally ignore the first invocation. the click often bubbles
-        // through to the pre‑welcome continue control and would immediately fire
-        // the welcome sequence, skipping the portal toggle audio/animation. we
-        // allow the user to click again once the UI has settled.
-        if (isRemote() && window._lastSoundOk && (Date.now() - window._lastSoundOk) < 500) {
-            console.log('premature welcome suppressed (early got-it click)');
+        // if the pre-welcome page has never been shown yet, ignore early calls
+        // (happens when the 'Got it' click propagates through the sound overlay
+        // before the portal/pre section is revealed). Only apply this guard on
+        // remote loads; local file browsing doesn't exhibit the issue.
+        if (!window._preShown && window.location.protocol.startsWith('http')) {
+            console.log('hidePreWelcomeAndStartWelcome called before pre-welcome shown; deferring');
+            window._deferredHide = true;
             return;
         }
-
         // mark that welcome may now run
         window._allowWelcome = true;
         const pre = document.getElementById('pre-welcome-page');
@@ -2522,7 +2491,9 @@ OS: Horizon OS 1.0
 
                                 const ok = overlay.querySelector('#sound-ok');
                                 if (ok) {
-                                    ok.addEventListener('click', async () => {
+                                    ok.addEventListener('click', async (e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
                                         overlay.remove();
 
                                         if (!playIntro) {
@@ -2624,10 +2595,20 @@ OS: Horizon OS 1.0
                                         }
                                         if (pre) {
                                                 pre.style.display = 'flex';
+                                                // mark that the pre-welcome page is now visible
+                                                window._preShown = true;
                                                 if (window._animateToggleOnPreShow && window.showPortalToggleOnce) {
                                                     window.showPortalToggleOnce();
                                                     window._animateToggleOnPreShow = false;
                                                 }
+                                        }
+                                        // if an earlier click had attempted to hide the pre page before it was shown,
+                                        // run the hide logic now that it's visible.
+                                        if (window._deferredHide) {
+                                            delete window._deferredHide;
+                                            if (typeof hidePreWelcomeAndStartWelcome === 'function') {
+                                                hidePreWelcomeAndStartWelcome();
+                                            }
                                         }
                                 };
 

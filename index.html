@@ -808,7 +808,10 @@
         const ok = overlay.querySelector('#sound-ok');
 
         if (ok) {
-          ok.addEventListener('click', async () => {
+          ok.addEventListener('click', async (e) => {
+            // prevent this click from reaching anything underneath (portal toggle/continue)
+            e.stopPropagation();
+            e.preventDefault();
             // remove the audio notice overlay
             overlay.remove();
 
