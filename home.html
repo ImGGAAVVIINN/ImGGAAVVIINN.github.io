@@ -1387,12 +1387,13 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     function showPreWelcome() {
       const pre = document.getElementById('pre-welcome-page');
       if (!pre) return;
-      if (getComputedStyle(pre).display === 'none') {
-        pre.style.display = 'flex';
-        if (window._animateToggleOnPreShow && window.showPortalToggleOnce) {
-          window.showPortalToggleOnce();
-          window._animateToggleOnPreShow = false;
-        }
+      // always force visibility; there have been timing cases where the
+      // computed style was not strictly "none" and the portal stayed hidden
+      // even though the user had dismissed the audio warning.
+      pre.style.display = 'flex';
+      if (window._animateToggleOnPreShow && window.showPortalToggleOnce) {
+        window.showPortalToggleOnce();
+        window._animateToggleOnPreShow = false;
       }
     }
 
@@ -1420,11 +1421,19 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 
     // always show the audio notice; pass `isFirstVisit` so the intro video can be gated
     // the callback now handles both continuation and showing the pre‑welcome
-    // page so the portal does not wait for the later `load` event.
-    showSoundWarning(function() {
-      continueApp();
+    // page so the portal does not wait for the later `load` event. guard
+    // against any error inside the warning logic so we always reveal the
+    // portal even if the overlay creation blows up.
+    try {
+      showSoundWarning(function() {
+        continueApp();
+        showPreWelcome();
+      }, isFirstVisit);
+    } catch (e) {
+      console.log('showSoundWarning threw:', e);
+      // fallback: make sure the portal shows anyway
       showPreWelcome();
-    }, isFirstVisit);
+    }
 
     // Sound warning / audio-notice dialog (always shown). `playIntro` controls whether the intro video runs.
     function showSoundWarning(onDone, playIntro = false) {
