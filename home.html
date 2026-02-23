@@ -1458,28 +1458,21 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         const ok = overlay.querySelector('#sound-ok');
 
         if (ok) {
-          ok.addEventListener('click', async () => {
+          ok.addEventListener('click', () => {
             // mark that we want the portal toggle to animate when the pre section shows
             window._animateToggleOnPreShow = true;
 
-            // remove the audio notice overlay right away so the page behind
-            // can start loading (portal, pre-welcome, etc).
+            // remove the audio notice overlay
             overlay.remove();
 
-            // always notify caller immediately - the intro video is purely
-            // cosmetic and should not block page initialization. the
-            // original code waited on `video.play()` which could stall for
-            // many seconds on slow/remote connections, causing the 20‑second
-            // delay described in the bug report.
+            // immediately continue the app (portal or pre-welcome) regardless of intro video
             if (onDone) onDone();
 
             if (!playIntro) {
-              // nothing else to do
               return;
             }
 
-            // play intro video asynchronously; we still retain the overlay
-            // and cleanup logic but we don't await the play promise.
+            // play intro video in overlay, but do not delay onDone
             const vOverlay = document.createElement('div');
             vOverlay.style.position = 'fixed';
             vOverlay.style.inset = '0';
@@ -1491,7 +1484,7 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 
             const video = document.createElement('video');
             video.src = 'videos/weWereLiedTo.mp4';
-            video.autoplay = false;
+            video.autoplay = false; // we'll call play() explicitly
             video.playsInline = true;
             video.controls = false;
             video.preload = 'auto';
@@ -1502,43 +1495,18 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             video.style.height = '100%';
 
             vOverlay.appendChild(video);
+            // initial background is black; we'll fade it to white near the end of the video
             vOverlay.style.background = '#000';
             vOverlay.style.transition = '';
             document.body.appendChild(vOverlay);
 
-            // start playback but do not await; handle failures silently
-            try {
-              const playPromise = video.play();
-              if (playPromise && playPromise.catch) {
-                playPromise.catch(err => {
-                  console.log('Intro video play failed or was blocked:', err);
-                  vOverlay.remove();
-                });
-              }
-            } catch (err) {
-              console.log('Intro video play start error:', err);
-              vOverlay.remove();
+            const playPromise = video.play();
+            if (playPromise && playPromise.catch) {
+              playPromise.catch(err => {
+                console.log('Intro video play failed or was blocked:', err);
+                vOverlay.remove();
+              });
             }
-
-            let fadeStarted = false;
-            const fadeStart = 46.67;
-            const fadeDuration = 2;
-            const onTime = () => {
-              const t = video.currentTime;
-              if (!fadeStarted && t >= fadeStart) {
-                fadeStarted = true;
-                vOverlay.style.transition = `background ${fadeDuration}s linear`;
-                vOverlay.style.background = '#fff';
-              }
-            };
-            video.addEventListener('timeupdate', onTime);
-
-            video.addEventListener('ended', () => {
-              video.removeEventListener('timeupdate', onTime);
-              vOverlay.remove();
-              // onDone already fired above
-            }, { once: true });
-          });
 
             // fade overlay background to white between 0:47 and 0:49
             let fadeStarted = false;
@@ -1555,11 +1523,10 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             };
             video.addEventListener('timeupdate', onTime);
 
-            // when video ends, remove overlay and continue
+            // when video ends, remove overlay (app already continued)
             video.addEventListener('ended', () => {
               video.removeEventListener('timeupdate', onTime);
               vOverlay.remove();
-              if (onDone) onDone();
             }, { once: true });
           });
 
@@ -2508,13 +2475,11 @@ OS: Horizon OS 1.0
 
                                 const ok = overlay.querySelector('#sound-ok');
                                 if (ok) {
-                                    ok.addEventListener('click', async () => {
-                                        overlay.remove();
-
-                                        // fire onDone immediately so the rest of the
-                                        // UI (portal/pre-welcome/etc.) can proceed without
-                                        // waiting for the intro video to buffer.
+                                    ok.addEventListener('click', () => {
+                                        // immediately call onDone so app can continue behind any video
                                         if (onDone) onDone();
+
+                                        overlay.remove();
 
                                         if (!playIntro) {
                                             return;
@@ -2546,17 +2511,12 @@ OS: Horizon OS 1.0
                                         vOverlay.style.transition = '';
                                         document.body.appendChild(vOverlay);
 
-                                        try {
-                                            const playPromise = video.play();
-                                            if (playPromise && playPromise.catch) {
-                                                playPromise.catch(err => {
-                                                    console.log('Intro video play failed or was blocked:', err);
-                                                    vOverlay.remove();
-                                                });
-                                            }
-                                        } catch (err) {
-                                            console.log('Intro video play start error:', err);
-                                            vOverlay.remove();
+                                        const playPromise = video.play();
+                                        if (playPromise && playPromise.catch) {
+                                            playPromise.catch(err => {
+                                                console.log('Intro video play failed or was blocked:', err);
+                                                vOverlay.remove();
+                                            });
                                         }
 
                                         let fadeStarted = false;
@@ -2575,7 +2535,6 @@ OS: Horizon OS 1.0
                                         video.addEventListener('ended', () => {
                                             video.removeEventListener('timeupdate', onTime);
                                             vOverlay.remove();
-                                            // onDone already executed above
                                         }, { once: true });
                                     });
 
