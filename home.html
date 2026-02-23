@@ -6,6 +6,8 @@
   <title>Home Page</title>
   <link rel="stylesheet" href="home.css" />
         <link rel="stylesheet" href="https://unpkg.com/7.css/dist/7.scoped.css" />
+  <!-- Preload toggle interaction module to reduce drag latency -->
+  <link rel="modulepreload" href="scripts.js?v=2">
     <!-- GSAP Core -->
         <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
     <!-- GSAP Plugins -->
@@ -745,7 +747,7 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   <div class="lights-background" id="lightsContainer"></div>
   
   <main>
-  <button id="merged-toggle" aria-label="toggle" aria-pressed="false" class="liquid-toggle pre-pop" style="display:none;">
+  <button id="merged-toggle" aria-label="toggle" aria-pressed="false" class="liquid-toggle pre-pop loading" style="display:none;">
         <div class="arrow arrow--main" style="margin-left: -150px; margin-top: -50px;">
           <span style="color: #605E5FFF;">Open the portal?</span>
         </div>
@@ -1133,7 +1135,12 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
       window.triggerWhiteFlash = (activate = true) => triggerWhiteFlash(activate);
 
     // Load interaction module and any other modules that should run after initialization
-  import('./scripts.js?v=2').catch(e => console.log('Failed to load interactions:', e));
+  import('./scripts.js?v=2')
+    .then(() => {
+      const t = document.querySelector('.liquid-toggle');
+      if (t) t.classList.remove('loading');
+    })
+    .catch(e => console.log('Failed to load interactions:', e));
 
     // Try to autoplay background audio (best-effort). If browser blocks autoplay this will be caught
     // and audio will still start on first user interaction via startAudio(). We apply a short gain ramp
@@ -1624,16 +1631,10 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         toggle.style.display = '';
         toggle.classList.remove('pre-pop');
         toggle.classList.add('pop-in');
-        // keep interaction disabled until the animation finishes
-        toggle.style.pointerEvents = 'none';
+        toggle.style.pointerEvents = 'auto';
+        // remove animation class after it finishes, but keep element visible
         toggle.addEventListener('animationend', () => {
             toggle.classList.remove('pop-in');
-            toggle.style.pointerEvents = 'auto';
-            // also update the draggable instance in case bounds were wrong
-            if (window.portalDragInstance && window.portalDragInstance[0]) {
-                window.portalDragInstance[0].update();
-                window.portalDragInstance[0].enable();
-            }
         }, { once: true });
     }
     window.showPortalToggleOnce = showPortalToggleOnce;
