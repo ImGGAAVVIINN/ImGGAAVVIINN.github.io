@@ -760,6 +760,9 @@
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
   overlay.style.background = 'transparent';
+  // temporarily disable the portal control while this overlay is up
+  const toggleEl = document.querySelector('.liquid-toggle');
+  if (toggleEl) toggleEl.style.pointerEvents = 'none';
 
   // background video (muted) for the warning screen — plays silently and loops
   const bgVideo = document.createElement('video');
@@ -817,6 +820,8 @@
             // prevent this click from reaching anything underneath (portal toggle/continue)
             e.stopPropagation();
             e.preventDefault();
+            // re-enable portal click now that warning is gone
+            try { const t = document.querySelector('.liquid-toggle'); if (t) t.style.pointerEvents = ''; } catch(e) {}
             // remove the audio notice overlay
             overlay.remove();
 

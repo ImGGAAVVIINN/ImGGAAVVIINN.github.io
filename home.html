@@ -1408,6 +1408,13 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
   overlay.style.background = 'transparent';
+  // disable portal toggle while the warning is visible to avoid click-through
+  const toggleEl = document.querySelector('.liquid-toggle');
+  let prevPointer = null;
+  if (toggleEl) {
+      prevPointer = toggleEl.style.pointerEvents;
+      toggleEl.style.pointerEvents = 'none';
+  }
 
   // background video (muted) for the warning screen — plays silently and loops
   // use the preloaded element created earlier to avoid a flash/delay. cloning
@@ -1468,6 +1475,11 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             // prevent clicks from leaking through to the portal UI underneath
             e.stopPropagation();
             e.preventDefault();
+            // restore toggle pointer events now that overlay will be gone
+            try {
+                const toggleEl = document.querySelector('.liquid-toggle');
+                if (toggleEl) toggleEl.style.pointerEvents = '';
+            } catch (err) {}
             // mark that we want the portal toggle to animate when the pre section shows
             window._animateToggleOnPreShow = true;
 
