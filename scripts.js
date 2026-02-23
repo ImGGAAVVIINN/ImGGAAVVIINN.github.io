@@ -75,6 +75,12 @@ update()
 // }
 // the actual interaction we're going to do with GSAP here because I can't be bothered
 // to manage a CSS timeline for this with the bounce lol
+// ensure the DRAG instance is disabled while popping in; will be enabled once
+// animation ends (see listener below)
+if (window.portalDragInstance && window.portalDragInstance[0]) {
+  window.portalDragInstance[0].disable();
+}
+
 const toggleState = async () => {
   // record that the user explicitly toggled the portal control
   window._userClearedPortal = true;
@@ -131,7 +137,10 @@ const toggleState = async () => {
 }
 // toggle.addEventListener('click', toggleState)
 const proxy = document.createElement('div')
-Draggable.create(proxy, {
+// create draggable instance but keep it disabled until the toggle is fully
+// visible/finished its pop-in animation. this avoids a race where the user
+// attempts to drag while the element is animating or still pointer-events:none.
+window.portalDragInstance = Draggable.create(proxy, {
   allowContextMenu: true,
   handle: '.liquid-toggle',
   onDragStart: function () {
@@ -178,6 +187,26 @@ Draggable.create(proxy, {
   },
   onPress: function () {
     this.__pressTime = Date.now()
+  }
+});
+
+// disable until the toggle has finished popping in
+if (window.portalDragInstance && window.portalDragInstance[0]) {
+  window.portalDragInstance[0].disable();
+}
+
+// once the visual pop-in animation completes we can safely enable dragging
+if (toggle) {
+  toggle.addEventListener('animationend', (e) => {
+    if (e.animationName === 'jello-pop') {
+      const inst = window.portalDragInstance && window.portalDragInstance[0];
+      if (inst) {
+        inst.update();
+        inst.enable();
+      }
+    }
+  });
+}
     document.querySelector('.arrow--main').style.setProperty('opacity', 0)
     if ('ontouchstart' in window && navigator.maxTouchPoints > 0)
       toggle.dataset.active = true

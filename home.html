@@ -1624,10 +1624,16 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         toggle.style.display = '';
         toggle.classList.remove('pre-pop');
         toggle.classList.add('pop-in');
-        toggle.style.pointerEvents = 'auto';
-        // remove animation class after it finishes, but keep element visible
+        // keep interaction disabled until the animation finishes
+        toggle.style.pointerEvents = 'none';
         toggle.addEventListener('animationend', () => {
             toggle.classList.remove('pop-in');
+            toggle.style.pointerEvents = 'auto';
+            // also update the draggable instance in case bounds were wrong
+            if (window.portalDragInstance && window.portalDragInstance[0]) {
+                window.portalDragInstance[0].update();
+                window.portalDragInstance[0].enable();
+            }
         }, { once: true });
     }
     window.showPortalToggleOnce = showPortalToggleOnce;
@@ -2513,5 +2519,3 @@ OS: Horizon OS 1.0
     </script>
 </body>
 </html>
-
-//1
