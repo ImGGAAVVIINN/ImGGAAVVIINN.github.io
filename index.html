@@ -214,9 +214,6 @@
 
   // global flag to mute initial audio if user chose so on first run
   window.initiallyMuted = false;
-  // portal gating flags - ensure welcome cannot start until user interacts
-  window._userClearedPortal = false;
-  window._preShown = false;  // in index.html pre page may not exist but keep for compatibility
 
   // main initialization — wrapped so we can delay it on mobile
   function startEverything() {
@@ -371,9 +368,7 @@
           if (redirected) return;
           redirected = true;
           // hide the portal overlay and start the welcome sequence
-          // record that user cleared portal
-          window._userClearedPortal = true;
-          console.log('redirectAfterFade: userClearedPortal set');
+          window._allowWelcome = true;
           const pre = document.getElementById('pre-welcome-page');
           if (pre) pre.style.display = 'none';
           if (window.startWelcome) {
@@ -760,9 +755,6 @@
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
   overlay.style.background = 'transparent';
-  // temporarily disable the portal control while this overlay is up
-  const toggleEl = document.querySelector('.liquid-toggle');
-  if (toggleEl) toggleEl.style.pointerEvents = 'none';
 
   // background video (muted) for the warning screen — plays silently and loops
   const bgVideo = document.createElement('video');
@@ -816,12 +808,7 @@
         const ok = overlay.querySelector('#sound-ok');
 
         if (ok) {
-          ok.addEventListener('click', async (e) => {
-            // prevent this click from reaching anything underneath (portal toggle/continue)
-            e.stopPropagation();
-            e.preventDefault();
-            // re-enable portal click now that warning is gone
-            try { const t = document.querySelector('.liquid-toggle'); if (t) t.style.pointerEvents = ''; } catch(e) {}
+          ok.addEventListener('click', async () => {
             // remove the audio notice overlay
             overlay.remove();
 

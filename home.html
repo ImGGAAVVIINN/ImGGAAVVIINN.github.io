@@ -877,12 +877,6 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   window._toggleAnimationPlayed = window._toggleAnimationPlayed || false;
   // if true, run animation when pre-welcome section is next shown
   window._animateToggleOnPreShow = false;
-  // guard to note that the pre-welcome page has been displayed at least once
-  window._preShown = window._preShown || false;
-  // only when the user explicitly opens the portal or clicks continue
-  // may we proceed to the full welcome. prevents accidental triggers from
-  // unrelated clicks (e.g. on the audio warning) or race conditions.
-  window._userClearedPortal = false;
 
   // main initialization — wrapped so we can delay it on mobile
   function startEverything() {
@@ -1408,13 +1402,6 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
   overlay.style.background = 'transparent';
-  // disable portal toggle while the warning is visible to avoid click-through
-  const toggleEl = document.querySelector('.liquid-toggle');
-  let prevPointer = null;
-  if (toggleEl) {
-      prevPointer = toggleEl.style.pointerEvents;
-      toggleEl.style.pointerEvents = 'none';
-  }
 
   // background video (muted) for the warning screen — plays silently and loops
   // use the preloaded element created earlier to avoid a flash/delay. cloning
@@ -1471,28 +1458,28 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         const ok = overlay.querySelector('#sound-ok');
 
         if (ok) {
-          ok.addEventListener('click', async (e) => {
-            // prevent clicks from leaking through to the portal UI underneath
-            e.stopPropagation();
-            e.preventDefault();
-            // restore toggle pointer events now that overlay will be gone
-            try {
-                const toggleEl = document.querySelector('.liquid-toggle');
-                if (toggleEl) toggleEl.style.pointerEvents = '';
-            } catch (err) {}
+          ok.addEventListener('click', async () => {
             // mark that we want the portal toggle to animate when the pre section shows
             window._animateToggleOnPreShow = true;
 
-            // remove the audio notice overlay
+            // remove the audio notice overlay right away so the page behind
+            // can start loading (portal, pre-welcome, etc).
             overlay.remove();
 
-            // If this is NOT the user's first visit, skip the intro video and continue immediately.
+            // always notify caller immediately - the intro video is purely
+            // cosmetic and should not block page initialization. the
+            // original code waited on `video.play()` which could stall for
+            // many seconds on slow/remote connections, causing the 20‑second
+            // delay described in the bug report.
+            if (onDone) onDone();
+
             if (!playIntro) {
-              if (onDone) onDone();
+              // nothing else to do
               return;
             }
 
-            // play intro video fully (user-initiated click — allowed to play on first visit)
+            // play intro video asynchronously; we still retain the overlay
+            // and cleanup logic but we don't await the play promise.
             const vOverlay = document.createElement('div');
             vOverlay.style.position = 'fixed';
             vOverlay.style.inset = '0';
@@ -1504,7 +1491,7 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 
             const video = document.createElement('video');
             video.src = 'videos/weWereLiedTo.mp4';
-            video.autoplay = false; // we'll call play() explicitly
+            video.autoplay = false;
             video.playsInline = true;
             video.controls = false;
             video.preload = 'auto';
@@ -1515,20 +1502,43 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             video.style.height = '100%';
 
             vOverlay.appendChild(video);
-            // initial background is black; we'll fade it to white near the end of the video
             vOverlay.style.background = '#000';
             vOverlay.style.transition = '';
             document.body.appendChild(vOverlay);
 
+            // start playback but do not await; handle failures silently
             try {
-              await video.play();
+              const playPromise = video.play();
+              if (playPromise && playPromise.catch) {
+                playPromise.catch(err => {
+                  console.log('Intro video play failed or was blocked:', err);
+                  vOverlay.remove();
+                });
+              }
             } catch (err) {
-              console.log('Intro video play failed or was blocked:', err);
-              // fall back to continuing the app
+              console.log('Intro video play start error:', err);
               vOverlay.remove();
-              if (onDone) onDone();
-              return;
             }
+
+            let fadeStarted = false;
+            const fadeStart = 46.67;
+            const fadeDuration = 2;
+            const onTime = () => {
+              const t = video.currentTime;
+              if (!fadeStarted && t >= fadeStart) {
+                fadeStarted = true;
+                vOverlay.style.transition = `background ${fadeDuration}s linear`;
+                vOverlay.style.background = '#fff';
+              }
+            };
+            video.addEventListener('timeupdate', onTime);
+
+            video.addEventListener('ended', () => {
+              video.removeEventListener('timeupdate', onTime);
+              vOverlay.remove();
+              // onDone already fired above
+            }, { once: true });
+          });
 
             // fade overlay background to white between 0:47 and 0:49
             let fadeStarted = false;
@@ -1583,23 +1593,8 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 (function(){
     // hide pre-welcome and start the welcome sequence
     function hidePreWelcomeAndStartWelcome() {
-        // Only allow the full welcome to start if the user has actively
-        // cleared the portal (via the toggle or continue button). This stops
-        // spurious invocations from races or fast clicks on overlays.
-        if (!window._userClearedPortal) {
-            console.log('hidePreWelcomeAndStartWelcome ignored – user did not clear portal');
-            return;
-        }
-        // if the pre-welcome page has never been shown yet, ignore early calls
-        // (happens when the 'Got it' click propagates through the sound overlay
-        // before the portal/pre section is revealed). Only apply this guard on
-        // remote loads; local file browsing doesn't exhibit the issue.
-        if (!window._preShown && window.location.protocol.startsWith('http')) {
-            console.log('hidePreWelcomeAndStartWelcome called before pre-welcome shown; ignoring');
-            return;
-        }
-        // hide the pre-welcome page and clean up visuals/audio; welcome itself
-        // is triggered explicitly by the user interaction that caused this call.
+        // mark that welcome may now run
+        window._allowWelcome = true;
         const pre = document.getElementById('pre-welcome-page');
         if (pre) pre.style.display = 'none';
         // clear any white‑flash remnants so the welcome screen is visible
@@ -1620,7 +1615,7 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         } catch (e) {
             console.log('error stopping portal audio', e);
         }
-        // note: do not start welcome here; caller should arrange it
+        if (window.startWelcome) window.startWelcome();
     }
 
     const toggle = document.getElementById('merged-toggle');
@@ -1684,41 +1679,8 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         setTimeout(() => { triggerWhiteFlash(); }, 520);
     }
 
-    toggle && toggle.addEventListener('click', (e) => {
-        if (!window._preShown) {
-            e.stopPropagation();
-            e.preventDefault();
-            console.log('portal toggle click ignored until pre-welcome visible');
-            return;
-        }
-        // debounce immediate clicks after pre page appears
-        const now = performance.now();
-        if (window._preShownAt && now - window._preShownAt < 300) {
-            e.stopPropagation();
-            e.preventDefault();
-            console.log('toggle click ignored due to preShownAt debounce (', now - window._preShownAt, 'ms)');
-            return;
-        }
-        // indicate the user explicitly opened the portal
-        window._userClearedPortal = true;
-        console.log('userClearedPortal flag set via toggle click');
-        toggleState();
-        // trigger welcome (it will defer if pre-page still visible)
-        if (window.startWelcome) setTimeout(() => { window.startWelcome(); }, 0);
-    });
-    cont && cont.addEventListener('click', (e) => {
-        if (!window._preShown) {
-            e.stopPropagation();
-            e.preventDefault();
-            console.log('pre-welcome continue click ignored until page visible');
-            return;
-        }
-        // user opted to bypass the portal
-        window._userClearedPortal = true;
-        console.log('userClearedPortal flag set via continue button');
-        hidePreWelcomeAndStartWelcome();
-        if (window.startWelcome) setTimeout(() => { window.startWelcome(); }, 0);
-    });
+    toggle && toggle.addEventListener('click', toggleState);
+    cont && cont.addEventListener('click', hidePreWelcomeAndStartWelcome);
     window.mergedTriggerWhiteFlash = triggerWhiteFlash;
 })();
 </script>
@@ -1727,7 +1689,35 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
 
 
         <!-- Welcome Splash Screen -->
+        <canvas id="welcome-splash" style="position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 9999;">
+                Your browser does not support canvas.
+        </canvas>
+        <div id="glass-icons-container">
+            <div class="glass-icon-top-row">
+                <img id="glass-icon-start" src="images/icons/starthover.png" alt="" />
+                <div class="glass-icon-right-stack">
+                    <img id="glass-icon-horizon" src="images/Horizon-OS.png" alt="" />
+                    <img id="glass-icon-version" src="images/1.0.png" alt="" />
+                    <h1 style="font-family: 'Frutiger'; font-size: 1rem; margin-top: 0.1rem;">Common World Institute of Technology</h1>
+                </div>
+            </div>
+            <div class="glass-icon-bottom-row">
+                <img src="images/icons/internet.png" alt="" />
+                <img src="images/icons/run-build-configure.svg" alt="" />
+                <img src="images/icons/mouse.png" alt="" />
+                <img src="images/icons/multiWindows.svg" alt="" />
+                <img src="images/icons/laptop.png" alt="" />
+                <img src="images/icons/seperation.png" alt="" />
+                <img src="images/icons/system-software-update.svg" alt="" />
+            </div>
+            <div id="debugging" style="background-color: black; width: 28rem ;margin: auto; margin-top: 0.5rem; padding: 0.5rem; border-radius: 0.5rem;">
+                
+            </div>
         
+        </div>
+        <div id="welcome-progressbar" class="win7" style="position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: calc(100vw + 32px); margin: 0; padding: 0; z-index: 10002; pointer-events: none;">
+            <div role="progressbar" class="marquee" style="margin: 0; width: 100%; border-radius: 0;"></div>
+        </div>
         </div>
         <img
                 id="welcome-splash-image"
@@ -2394,17 +2384,9 @@ OS: Horizon OS 1.0
             }
 
             function startWelcome() {
-                // Only start welcome when the user has explicitly cleared the portal via
-                // the toggle or continue button. _userClearedPortal is set in those
-                // event handlers; without it the call should be ignored.
-                if (!window._userClearedPortal) {
-                    console.log('startWelcome blocked: user has not cleared portal');
-                    return;
-                }
-                // Also require that the pre-welcome page was shown at least once; this
-                // prevents stray early invocations from running the sequence.
-                if (!window._preShown) {
-                    console.log('startWelcome blocked: pre-welcome was never shown');
+                // only allow once portal has been cleared
+                if (!window._allowWelcome) {
+                    console.log('startWelcome blocked until pre-welcome cleared');
                     return;
                 }
                 // If the pre-welcome page is still visible, defer starting the welcome
@@ -2526,13 +2508,15 @@ OS: Horizon OS 1.0
 
                                 const ok = overlay.querySelector('#sound-ok');
                                 if (ok) {
-                                    ok.addEventListener('click', async (e) => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
+                                    ok.addEventListener('click', async () => {
                                         overlay.remove();
 
+                                        // fire onDone immediately so the rest of the
+                                        // UI (portal/pre-welcome/etc.) can proceed without
+                                        // waiting for the intro video to buffer.
+                                        if (onDone) onDone();
+
                                         if (!playIntro) {
-                                            if (onDone) onDone();
                                             return;
                                         }
 
@@ -2563,12 +2547,16 @@ OS: Horizon OS 1.0
                                         document.body.appendChild(vOverlay);
 
                                         try {
-                                            await video.play();
+                                            const playPromise = video.play();
+                                            if (playPromise && playPromise.catch) {
+                                                playPromise.catch(err => {
+                                                    console.log('Intro video play failed or was blocked:', err);
+                                                    vOverlay.remove();
+                                                });
+                                            }
                                         } catch (err) {
-                                            console.log('Intro video play failed or was blocked:', err);
+                                            console.log('Intro video play start error:', err);
                                             vOverlay.remove();
-                                            if (onDone) onDone();
-                                            return;
                                         }
 
                                         let fadeStarted = false;
@@ -2587,7 +2575,7 @@ OS: Horizon OS 1.0
                                         video.addEventListener('ended', () => {
                                             video.removeEventListener('timeupdate', onTime);
                                             vOverlay.remove();
-                                            if (onDone) onDone();
+                                            // onDone already executed above
                                         }, { once: true });
                                     });
 
@@ -2630,12 +2618,6 @@ OS: Horizon OS 1.0
                                         }
                                         if (pre) {
                                                 pre.style.display = 'flex';
-                                                // mark that the pre-welcome page is now visible
-                                                window._preShown = true;
-                                                // record timestamp so we can ignore any near‑simultaneous
-                                                // toggle clicks (e.g. the same user gesture that hit the
-                                                // Got‑it button). see toggle click handler below.
-                                                window._preShownAt = performance.now();
                                                 if (window._animateToggleOnPreShow && window.showPortalToggleOnce) {
                                                     window.showPortalToggleOnce();
                                                     window._animateToggleOnPreShow = false;
