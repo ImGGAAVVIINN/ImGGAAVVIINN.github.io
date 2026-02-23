@@ -1016,8 +1016,12 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
               highShelf.gain.linearRampToValueAtTime(-18, currentTime + 2);
               gainNode.gain.linearRampToValueAtTime(0.4, currentTime + 2);
             }
-            // create a bright flash that expands from the toggle
-            triggerWhiteFlash(isPressed);
+            // create a bright flash that expands from the toggle. prefer the
+            // merged handler (defined later in the pre-welcome IIFE) which
+            // knows how to start the welcome; fall back to the local copy if
+            // the module hasn't initialised yet.
+            if (window.mergedTriggerWhiteFlash) window.mergedTriggerWhiteFlash(isPressed);
+            else triggerWhiteFlash(isPressed);
           }
         });
       });
@@ -1034,9 +1038,9 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         const redirectAfterFade = () => {
           if (redirected) return;
           redirected = true;
-          // also hide pre-welcome and start welcome if available
-          if (typeof hidePreWelcomeAndStartWelcome === 'function') {
-              hidePreWelcomeAndStartWelcome();
+          // also hide the portal and start welcome if the global helper exists
+          if (window.hidePreWelcomeAndStartWelcome) {
+              window.hidePreWelcomeAndStartWelcome();
           }
         };
 
@@ -1621,6 +1625,8 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         }
         if (window.startWelcome) window.startWelcome();
     }
+    // make available to other scripts (e.g. audio observer)
+    window.hidePreWelcomeAndStartWelcome = hidePreWelcomeAndStartWelcome;
 
     const toggle = document.getElementById('merged-toggle');
     const cont = document.getElementById('pre-welcome-continue');
