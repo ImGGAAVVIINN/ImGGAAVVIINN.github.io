@@ -1360,6 +1360,24 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     // Show the audio notice overlay on every visit; play the intro video only on first visit.
     function continueApp() {
       if (isMobileDevice) showMobileBlockScreenScoped(); else startEverything();
+      // immediately reveal the pre‑welcome (portal) section as soon as the
+      // audio notice has been dismissed. the helper is defined further down;
+      // calling it here avoids waiting for the heavy `load` event.
+      if (typeof showPreWelcome === 'function') showPreWelcome();
+    }
+
+    // helper used by both the early audio callback and the load handler. keeps
+    // logic in one place so the portal appears without a mysterious delay.
+    function showPreWelcome() {
+      const pre = document.getElementById('pre-welcome-page');
+      if (!pre) return;
+      if (getComputedStyle(pre).display === 'none') {
+        pre.style.display = 'flex';
+        if (window._animateToggleOnPreShow && window.showPortalToggleOnce) {
+          window.showPortalToggleOnce();
+          window._animateToggleOnPreShow = false;
+        }
+      }
     }
 
     // pre-create & preload the background video used by the sound-warning overlay
@@ -1385,7 +1403,12 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     _soundWarningBgVideo.load();
 
     // always show the audio notice; pass `isFirstVisit` so the intro video can be gated
-    showSoundWarning(continueApp, isFirstVisit);
+    // the callback now handles both continuation and showing the pre‑welcome
+    // page so the portal does not wait for the later `load` event.
+    showSoundWarning(function() {
+      continueApp();
+      showPreWelcome();
+    }, isFirstVisit);
 
     // Sound warning / audio-notice dialog (always shown). `playIntro` controls whether the intro video runs.
     function showSoundWarning(onDone, playIntro = false) {
@@ -1462,15 +1485,74 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             // mark that we want the portal toggle to animate when the pre section shows
             window._animateToggleOnPreShow = true;
 
-            // remove the audio notice overlay immediately
+            // remove the audio notice overlay
             overlay.remove();
 
-            // always continue the app straight away so the portal section can load
-            if (onDone) onDone();
+            // If this is NOT the user's first visit, skip the intro video and continue immediately.
+            if (!playIntro) {
+              if (onDone) onDone();
+              return;
+            }
 
-            // we no longer block on the intro video at all; just continue
-            // regardless of the playIntro flag. this fixes remote/slow cases.
-            return;
+            // play intro video fully (user-initiated click — allowed to play on first visit)
+            const vOverlay = document.createElement('div');
+            vOverlay.style.position = 'fixed';
+            vOverlay.style.inset = '0';
+            vOverlay.style.zIndex = '2147483660';
+            vOverlay.style.display = 'flex';
+            vOverlay.style.alignItems = 'center';
+            vOverlay.style.justifyContent = 'center';
+            vOverlay.style.background = '#000';
+
+            const video = document.createElement('video');
+            video.src = 'videos/weWereLiedTo.mp4';
+            video.autoplay = false; // we'll call play() explicitly
+            video.playsInline = true;
+            video.controls = false;
+            video.preload = 'auto';
+            video.volume = 0.25;
+            video.style.maxWidth = '100%';
+            video.style.maxHeight = '100%';
+            video.style.width = '100%';
+            video.style.height = '100%';
+
+            vOverlay.appendChild(video);
+            // initial background is black; we'll fade it to white near the end of the video
+            vOverlay.style.background = '#000';
+            vOverlay.style.transition = '';
+            document.body.appendChild(vOverlay);
+
+            try {
+              await video.play();
+            } catch (err) {
+              console.log('Intro video play failed or was blocked:', err);
+              // fall back to continuing the app
+              vOverlay.remove();
+              if (onDone) onDone();
+              return;
+            }
+
+            // fade overlay background to white between 0:47 and 0:49
+            let fadeStarted = false;
+            const fadeStart = 46.67;
+            const fadeDuration = 2; // seconds
+            const onTime = () => {
+              const t = video.currentTime;
+              if (!fadeStarted && t >= fadeStart) {
+                fadeStarted = true;
+                // trigger a smooth background transition to white that finishes at fadeStart + fadeDuration
+                vOverlay.style.transition = `background ${fadeDuration}s linear`;
+                vOverlay.style.background = '#fff';
+              }
+            };
+            video.addEventListener('timeupdate', onTime);
+
+            // when video ends, remove overlay and continue
+            video.addEventListener('ended', () => {
+              video.removeEventListener('timeupdate', onTime);
+              vOverlay.remove();
+              if (onDone) onDone();
+            }, { once: true });
           });
 
           // keyboard accessibility: Enter/Space should also activate
@@ -2373,114 +2455,13 @@ OS: Horizon OS 1.0
             window.startWelcome = startWelcome;
             window.finishWelcome = finishWelcome;
 
-                        // Insert original sound-warning overlay and gate the pre-welcome page behind it.
-                        // Cookie check to gate intro video on first visit (copied from index.html)
-                        const isFirstVisit = !document.cookie.includes("visited=true");
-                        if (isFirstVisit) {
-                                document.cookie = "visited=true; max-age=31536000; path=/"; // Expires in 1 year
-                        }
-
-                        // Original showSoundWarning implementation (copied verbatim from index.html)
-                        function showSoundWarning(onDone, playIntro = false) {
-                            const scopedHref = 'https://unpkg.com/7.css/dist/7.scoped.css';
-                            const hasScoped = [...document.styleSheets].some(s => s.href && s.href.includes('7.css/dist/7.scoped.css'));
-
-                            const createOverlay = () => {
-                                const overlay = document.createElement('div');
-                                overlay.style.position = 'fixed';
-                                overlay.style.inset = '0';
-                                overlay.style.zIndex = '2147483650';
-                                overlay.style.display = 'flex';
-                                overlay.style.alignItems = 'center';
-                                overlay.style.justifyContent = 'center';
-                                overlay.style.background = 'transparent';
-
-                                const bgVideo = document.createElement('video');
-                                bgVideo.src = 'videos/bg.mp4';
-                                bgVideo.autoplay = true;
-                                bgVideo.muted = true;
-                                bgVideo.loop = true;
-                                bgVideo.playsInline = true;
-                                bgVideo.preload = 'auto';
-                                bgVideo.style.position = 'absolute';
-                                bgVideo.style.inset = '0';
-                                bgVideo.style.width = '100%';
-                                bgVideo.style.height = '100%';
-                                bgVideo.style.objectFit = 'cover';
-                                bgVideo.style.zIndex = '2147483650';
-                                bgVideo.style.opacity = '1';
-                                bgVideo.style.filter = 'brightness(.46)';
-
-                                overlay.appendChild(bgVideo);
-                                overlay.appendChild(wrapper);
-                                bgVideo.play().catch(e => console.log('bg.mp4 autoplay blocked or failed:', e));
-                                document.body.appendChild(overlay);
-
-                                const ok = overlay.querySelector('#sound-ok');
-                                if (ok) {
-                                    ok.addEventListener('click', async () => {
-                                        overlay.remove();
-
-                                        // always continue immediately so the portal/pre section can start
-                                        if (onDone) onDone();
-                                        // ignore playIntro and continue immediately
-                                        return;
-                                    });
-
-                                    ok.addEventListener('keydown', (e) => {
-                                        if (e.key === 'Enter' || e.key === ' ') {
-                                            e.preventDefault();
-                                            ok.click();
-                                        }
-                                    });
-                                }
-                            };
-
-                            if (hasScoped) {
-                                createOverlay();
-                            } else {
-                                const link = document.createElement('link');
-                                link.rel = 'stylesheet';
-                                link.href = scopedHref;
-                                link.crossOrigin = 'anonymous';
-                                let called = false;
-                                link.onload = () => { if (!called) { called = true; createOverlay(); console.log('7.scoped.css loaded for sound dialog'); } };
-                                link.onerror = () => { if (!called) { called = true; console.log('Failed to load 7.scoped.css for sound dialog — falling back'); createOverlay(); } };
-                                setTimeout(() => { if (!called) { called = true; console.log('7.scoped.css load timeout — showing dialog'); createOverlay(); } }, 800);
-                                document.head.appendChild(link);
-                            }
-                        }
-//a
-                        // On load, show the sound-warning first and then the pre-welcome page
-                        window.addEventListener('load', function() {
-                                const pre = document.getElementById('pre-welcome-page');
-                                const showPre = () => {
-                                        // Hide the actual welcome canvas/progress until user moves past pre-welcome
-                                        if (welcomeSplash) {
-                                                welcomeSplash.style.display = 'none';
-                                                welcomeSplash.style.opacity = '1';
-                                        }
-                                        if (welcomeProgressBar) {
-                                                welcomeProgressBar.style.display = 'none';
-                                                welcomeProgressBar.style.opacity = '1';
-                                        }
-                                        if (pre) {
-                                                pre.style.display = 'flex';
-                                                if (window._animateToggleOnPreShow && window.showPortalToggleOnce) {
-                                                    window.showPortalToggleOnce();
-                                                    window._animateToggleOnPreShow = false;
-                                                }
-                                        }
-                                };
-
-                                // showSoundWarning will call showPre when user clicks 'Got it' (and playIntro if first visit)
-                                try {
-                                        showSoundWarning(showPre, isFirstVisit);
-                                } catch (e) {
-                                        // fallback: just show pre-welcome (no animation since user didn't click)
-                                        showPre();
-                                }
-                        });
+    // once the page has finished loading we still want to ensure the
+    // pre‑welcome portal is visible (in case the warning was dismissed
+    // before `load` fired). the earlier call to `showSoundWarning` now handles
+    // the audio dialog and this listener only handles the portal display.
+    window.addEventListener('load', function() {
+        showPreWelcome();
+    });
         })();
 
         // Play/Pause and skip button functionality
