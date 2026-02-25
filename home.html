@@ -1018,12 +1018,17 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
               highShelf.gain.linearRampToValueAtTime(-18, currentTime + 2);
               gainNode.gain.linearRampToValueAtTime(0.4, currentTime + 2);
             }
-            // create a bright flash that expands from the toggle. prefer the
-            // merged handler (defined later in the pre-welcome IIFE) which
-            // knows how to start the welcome; fall back to the local copy if
-            // the module hasn't initialised yet.
-            if (window.mergedTriggerWhiteFlash) window.mergedTriggerWhiteFlash(isPressed);
-            else triggerWhiteFlash(isPressed);
+            // The observer will fire for *any* change to aria-pressed,
+            // which includes both clicks and drags.  Clicks handle their own
+            // flash timing via the delayed call in `toggleState`, so
+            // `toggleState` sets a short-lived `_skipMutationFlash` flag to
+            // prevent this path from running in that case.  Drags never set
+            // that flag, so they hit this branch and immediately start the
+            // welcome (via the merged handler if available).
+            if (!window._skipMutationFlash) {
+                if (window.mergedTriggerWhiteFlash) window.mergedTriggerWhiteFlash(isPressed);
+                else triggerWhiteFlash(isPressed);
+            }
           }
         });
       });
@@ -1682,7 +1687,19 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     }
     window.showPortalToggleOnce = showPortalToggleOnce;
 
+    // internal flag to avoid running the flash twice in rapid succession
+    let _flashScheduled = false;
+
     function triggerWhiteFlash() {
+        // if a flash has already been scheduled or the welcome is already
+        // underway there is nothing left to do; this prevents the second
+        // (delayed) invocation from producing a second white‑out on the
+        // welcome screen. the observer logic above also skips calling us
+        // once the merged handler exists, so the only remaining duplicate
+        // path is the delayed callback from toggleState.
+        if (_flashScheduled || window._welcomeStarted) return;
+        _flashScheduled = true;
+
         const overlay = document.createElement('div');
         overlay.className = 'white-flash-overlay';
         overlay.style.zIndex = 2147483647;
@@ -1714,10 +1731,18 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     }
 
     function toggleState() {
+        // prevent the mutation observer from firing the flash immediately;
+        // this flag is cleared after 600ms since the delayed call handles it
+        // by then.
+        window._skipMutationFlash = true;
+        setTimeout(() => { window._skipMutationFlash = false; }, 600);
+
         const pressed = toggle.getAttribute('aria-pressed') === 'true';
         toggle.setAttribute('aria-pressed', (!pressed).toString());
         toggle.classList.remove('pre-pop');
         toggle.classList.add('pop-in');
+        // schedule the flash after the pop animation; the guard in
+        // triggerWhiteFlash handles duplicates
         setTimeout(() => { triggerWhiteFlash(); }, 520);
     }
 
