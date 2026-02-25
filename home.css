@@ -168,6 +168,8 @@
    absolute children pushed outside the viewport */
 html, body {
     overflow-x: hidden;
+    /* base-level background shows while JS builds video; uses black JPG as a low‑bandwidth fallback */
+    background: #000 url('videos/bg-f000000.jpg') center/cover no-repeat;
 }
 
 #welcome-splash {

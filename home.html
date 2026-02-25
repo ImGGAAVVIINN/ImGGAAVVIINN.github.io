@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Home Page</title>
   <link rel="stylesheet" href="home.css" />
-  <!-- preload bg fallback image for video-heavy screens -->
-  <link rel="preload" href="images/bg-f000000.png" as="image" />
         <link rel="stylesheet" href="https://unpkg.com/7.css/dist/7.scoped.css" />
     <!-- GSAP Core -->
         <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
@@ -1313,11 +1311,10 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     // reuse the preloaded sound-warning video to avoid delay; clone so the
     // element can be manipulated independently of the original.
     const mbBg = _soundWarningBgVideo.cloneNode(true);
+    if (!mbBg.poster) mbBg.poster = 'videos/bg-f000000.jpg';
     // adjust z-index and brightness for this overlay variant
     mbBg.style.zIndex = '2147483646';
     mbBg.style.filter = 'brightness(.45)';
-    // once the clone has data clear the background placeholder
-    mbBg.addEventListener('loadeddata', () => { mbBg.style.background = 'none'; });
     // attempt to play immediately; muted should allow autoplay on mobile
     mbBg.play().catch(e => console.log('mobile bg.mp4 autoplay failed:', e));
 
@@ -1405,9 +1402,12 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     // popping in late on slow devices.
     const _soundWarningBgVideo = document.createElement('video');
     _soundWarningBgVideo.src = 'videos/bg.mp4';
-    // show placeholder image until the video frames arrive
-    _soundWarningBgVideo.poster = 'images/bg-f000000.png';
-    _soundWarningBgVideo.style.background = "url('images/bg-f000000.png') center/cover no-repeat";
+    // show a static placeholder while the 7.5 MB video is fetched
+    _soundWarningBgVideo.poster = 'videos/bg-f000000.jpg';
+    // also paint the same image as a CSS background so the poster is visible
+    // even before the element is part of the DOM (clone will inherit this style)
+    _soundWarningBgVideo.style.background = "url('videos/bg-f000000.jpg') center/cover no-repeat";
+
     _soundWarningBgVideo.autoplay = true;
     _soundWarningBgVideo.muted = true;
     _soundWarningBgVideo.loop = true;
@@ -1421,10 +1421,6 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     _soundWarningBgVideo.style.zIndex = '2147483650';
     _soundWarningBgVideo.style.opacity = '1';
     _soundWarningBgVideo.style.filter = 'brightness(.46)';
-    // remove background when the first frame is ready
-    _soundWarningBgVideo.addEventListener('loadeddata', () => {
-      _soundWarningBgVideo.style.background = 'none';
-    });
     // kick off loading now even if not in DOM
     _soundWarningBgVideo.load();
 
@@ -1458,6 +1454,9 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   const bgVideo = _soundWarningBgVideo.cloneNode(true);
   // cloned element already has attributes & styles from the prototype, but
   // reassert here just in case future edits modify the preload logic above.
+  // in particular we want to make sure the poster stays in place
+  if (!bgVideo.poster) bgVideo.poster = 'videos/bg-f000000.jpg';
+
   bgVideo.autoplay = true;
   bgVideo.muted = true; // muted so browsers allow autoplay
   bgVideo.loop = true;
@@ -1472,8 +1471,6 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   bgVideo.style.opacity = '1';
   // darken the video so dialog text remains readable
   bgVideo.style.filter = 'brightness(.46)';
-  // remove placeholder once frames arrive
-  bgVideo.addEventListener('loadeddata', () => { bgVideo.style.background = 'none'; });
 
   const wrapper = document.createElement('div');
   wrapper.className = 'win7';
