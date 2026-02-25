@@ -83,6 +83,8 @@
   </noscript>
 </head>
 <body>
+  <!-- placeholder image shown immediately before the background video loads -->
+  <div id="bg-placeholder" style="position:absolute; inset:0; background:url('videos/bg-f000000.jpg') center/cover no-repeat; z-index:2147483647;"></div>
   <div class="lights-background" id="lightsContainer"></div>
   
   <main>
@@ -755,6 +757,9 @@
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
   overlay.style.background = 'transparent';
+  // drop the placeholder bitmap used during initial load, if any
+  const placeholder = document.getElementById('bg-placeholder');
+  if (placeholder) placeholder.remove();
 
   // background video (muted) for the warning screen — plays silently and loops
   const bgVideo = document.createElement('video');
@@ -764,6 +769,9 @@
   bgVideo.loop = true;
   bgVideo.playsInline = true;
   bgVideo.preload = 'auto';
+  // poster image shown immediately while video downloads
+  bgVideo.poster = 'videos/bg-f000000.jpg';
+  bgVideo.style.background = "url('videos/bg-f000000.jpg') center/cover no-repeat";
   bgVideo.style.position = 'absolute';
   bgVideo.style.inset = '0';
   bgVideo.style.width = '100%';
@@ -801,6 +809,10 @@
   // append video behind the dialog
   overlay.appendChild(bgVideo);
   overlay.appendChild(wrapper);
+  // ensure the overlay itself shows the still if the video errors out
+  bgVideo.addEventListener('error', () => {
+    overlay.style.background = "url('videos/bg-f000000.jpg') center/cover no-repeat";
+  });
   // try to play (best-effort), log failures
   bgVideo.play().catch(e => console.log('bg.mp4 autoplay blocked or failed:', e));
         document.body.appendChild(overlay);

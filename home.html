@@ -23,6 +23,8 @@
         </script>
 </head>
 <body class="has-scrollbar">
+  <!-- placeholder image shown immediately before the background video loads -->
+  <div id="bg-placeholder" style="position:absolute; inset:0; background:url('videos/bg-f000000.jpg') center/cover no-repeat; z-index:2147483647;"></div>
         <!-- White fade-in overlay -->
         <div id="page-fade-overlay"></div>
         
@@ -1311,7 +1313,6 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     // reuse the preloaded sound-warning video to avoid delay; clone so the
     // element can be manipulated independently of the original.
     const mbBg = _soundWarningBgVideo.cloneNode(true);
-    if (!mbBg.poster) mbBg.poster = 'videos/bg-f000000.jpg';
     // adjust z-index and brightness for this overlay variant
     mbBg.style.zIndex = '2147483646';
     mbBg.style.filter = 'brightness(.45)';
@@ -1402,17 +1403,18 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     // popping in late on slow devices.
     const _soundWarningBgVideo = document.createElement('video');
     _soundWarningBgVideo.src = 'videos/bg.mp4';
-    // show a static placeholder while the 7.5 MB video is fetched
-    _soundWarningBgVideo.poster = 'videos/bg-f000000.jpg';
-    // also paint the same image as a CSS background so the poster is visible
-    // even before the element is part of the DOM (clone will inherit this style)
-    _soundWarningBgVideo.style.background = "url('videos/bg-f000000.jpg') center/cover no-repeat";
-
     _soundWarningBgVideo.autoplay = true;
     _soundWarningBgVideo.muted = true;
     _soundWarningBgVideo.loop = true;
     _soundWarningBgVideo.playsInline = true;
     _soundWarningBgVideo.preload = 'auto';
+    // use a lightweight poster image so something is visible immediately while
+    // the 7.5 MB video transfers. the video element will automatically display
+    // the poster until playback begins.
+    _soundWarningBgVideo.poster = 'videos/bg-f000000.jpg';
+    // also set a matching background in case some browsers show the poster
+    // briefly or fail to render it; this gives an extra layer of protection.
+    _soundWarningBgVideo.style.background = "url('videos/bg-f000000.jpg') center/cover no-repeat";
     _soundWarningBgVideo.style.position = 'absolute';
     _soundWarningBgVideo.style.inset = '0';
     _soundWarningBgVideo.style.width = '100%';
@@ -1447,6 +1449,10 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
   overlay.style.background = 'transparent';
+  // if the placeholder image is still hanging around (before the video
+  // element is injected) remove it so it doesn't cover our overlay dialog.
+  const placeholder = document.getElementById('bg-placeholder');
+  if (placeholder) placeholder.remove();
 
   // background video (muted) for the warning screen — plays silently and loops
   // use the preloaded element created earlier to avoid a flash/delay. cloning
@@ -1454,14 +1460,15 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   const bgVideo = _soundWarningBgVideo.cloneNode(true);
   // cloned element already has attributes & styles from the prototype, but
   // reassert here just in case future edits modify the preload logic above.
-  // in particular we want to make sure the poster stays in place
-  if (!bgVideo.poster) bgVideo.poster = 'videos/bg-f000000.jpg';
-
   bgVideo.autoplay = true;
   bgVideo.muted = true; // muted so browsers allow autoplay
   bgVideo.loop = true;
   bgVideo.playsInline = true;
   bgVideo.preload = 'auto';
+  // ensure the poster survives the clone (it normally does) and add again
+  bgVideo.poster = 'videos/bg-f000000.jpg';
+  // also preserve the background fallback
+  bgVideo.style.background = "url('videos/bg-f000000.jpg') center/cover no-repeat";
   bgVideo.style.position = 'absolute';
   bgVideo.style.inset = '0';
   bgVideo.style.width = '100%';
@@ -1499,6 +1506,12 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
   // append video behind the dialog
   overlay.appendChild(bgVideo);
   overlay.appendChild(wrapper);
+  // if the video can't load (network error, etc) leave the poster visible
+  // and give the overlay a matching background so the user still sees
+  // something instead of a blank canvas.
+  bgVideo.addEventListener('error', () => {
+    overlay.style.background = "url('videos/bg-f000000.jpg') center/cover no-repeat";
+  });
   // try to play (best-effort), log failures
   bgVideo.play().catch(e => console.log('bg.mp4 autoplay blocked or failed:', e));
         document.body.appendChild(overlay);
