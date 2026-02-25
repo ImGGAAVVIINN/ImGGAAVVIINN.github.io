@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Liquid Toggle Knockout Backdrop</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- preload a lightweight fallback image for the big bg.mp4 video -->
+  <link rel="preload" href="images/bg-f000000.png" as="image" />
   <!-- scripts.js will be loaded dynamically by startEverything() so mobile can be blocked -->
   <style>
     @font-face {
@@ -662,6 +664,9 @@
     // background video for mobile block screen (muted so autoplay is allowed on most browsers)
     const mbBg = document.createElement('video');
     mbBg.src = 'videos/bg.mp4';
+    // show a lightweight placeholder while the video loads
+    mbBg.poster = 'images/bg-f000000.png';
+    mbBg.style.background = "url('images/bg-f000000.png') center/cover no-repeat";
     mbBg.muted = true;
     mbBg.autoplay = true;
     mbBg.loop = true;
@@ -676,6 +681,10 @@
     mbBg.style.filter = 'brightness(.45)';
     // attempt to play immediately; muted should allow autoplay on mobile
     mbBg.play().catch(e => console.log('mobile bg.mp4 autoplay failed:', e));
+    // clear the background when the video has frames so the placeholder isn't visible
+    mbBg.addEventListener('loadeddata', () => {
+      mbBg.style.background = 'none';
+    });
 
       // content using .win7 wrapper per 7.css docs
       const content = document.createElement('div');
@@ -759,6 +768,9 @@
   // background video (muted) for the warning screen — plays silently and loops
   const bgVideo = document.createElement('video');
   bgVideo.src = 'videos/bg.mp4';
+  // placeholder image while loading
+  bgVideo.poster = 'images/bg-f000000.png';
+  bgVideo.style.background = "url('images/bg-f000000.png') center/cover no-repeat";
   bgVideo.autoplay = true;
   bgVideo.muted = true; // muted so browsers allow autoplay
   bgVideo.loop = true;
@@ -803,6 +815,9 @@
   overlay.appendChild(wrapper);
   // try to play (best-effort), log failures
   bgVideo.play().catch(e => console.log('bg.mp4 autoplay blocked or failed:', e));
+  bgVideo.addEventListener('loadeddata', () => {
+    bgVideo.style.background = 'none';
+  });
         document.body.appendChild(overlay);
 
         const ok = overlay.querySelector('#sound-ok');
