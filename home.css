@@ -334,6 +334,38 @@ img {
     text-align: center;
 }
 
+/* Outro background: render the background-image via a ::before pseudo-element
+   that fades in at the top edge so the sticky-cols video bleeds smoothly into
+   it, mirroring how the intro fades at its bottom edge. */
+.outro {
+    position: relative;
+    z-index: 2; /* sit above the video but below sticky columns */
+    overflow: visible;
+    /* strip any background from the section itself — the pseudo handles it */
+    background-image: none !important;
+    background-color: transparent;
+}
+
+.outro::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    /* shift image down by 1rem using background-position */
+    background: center 1rem / cover no-repeat url('images/outroBG.webp');
+    pointer-events: none;
+    z-index: 0;
+    /* fade in at top so the video bleed shows through smoothly */
+    --outro-fade: 8vh;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0, rgba(0,0,0,1) var(--outro-fade), rgba(0,0,0,1) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0, rgba(0,0,0,1) var(--outro-fade), rgba(0,0,0,1) 100%);
+}
+
+/* ensure outro content sits above its background pseudo-element */
+.outro > * {
+    position: relative;
+    z-index: 2;
+}
+
 .sticky-cols {
     padding: 0.5rem;
 }
@@ -523,6 +555,7 @@ img {
 .taskbar-container {
     position: relative;
     width: 100%;
+    max-width: 100%; /* don't grow past the viewport, e.g. when scrollbars appear */
     box-sizing: border-box;
     padding: 0.25rem 0.5rem;
     display: block;

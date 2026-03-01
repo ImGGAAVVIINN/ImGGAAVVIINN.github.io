@@ -78,9 +78,9 @@ class IntroBubbleScreensaver {
         p5.createCanvas(width, height);
 
         this.images = [
-            p5.loadImage('bubbles/img/bubble-red.png'),
-            p5.loadImage('bubbles/img/bubble-blue.png'),
-            p5.loadImage('bubbles/img/bubble-purple.png'),
+            p5.loadImage('images/bubbles/bubble-red.png'),
+            p5.loadImage('images/bubbles/bubble-blue.png'),
+            p5.loadImage('images/bubbles/bubble-purple.png'),
         ];
 
         this.swapBubbleImage();
@@ -302,19 +302,26 @@ const initWelcomeSplashGlass = () => {
     window._startGlassBounceIn = (options = {}) => {
         // options.fallback = true when invoked by the fallback timer; that
         // call simply moves the icon container to centre if the normal flow
-        // is broken. debugging is now handled separately by startWelcome.
+        // is broken. debugging is handled by startWelcome() which calls this
+        // helper when the welcome UI becomes visible.
         const {fallback = false} = options;
         initGlassPosition(); // re-sync in case of resize
         glassAnimating = true;
-        // no debug logic here; startWelcome() will trigger it when appropriate
+        // no debug logic here; startWelcome() triggers logging when needed.
     };
 
     // fallback: if for some reason the overlay logic never calls the start
     // helper (e.g. #page-fade-overlay was removed earlier or during dev
-    // tweaking), make sure the bounce still happens after ~2s. This makes
-    // the icons move to centre even when the original trigger is skipped.
+    // tweaking), make sure the bounce still happens after ~2s. We only do
+    // this _after_ the welcome has actually started, otherwise the icons
+    // would drift too early.
     setTimeout(() => {
-        if (!glassAnimating && !glassArrived && window._startGlassBounceIn) {
+        if (
+            !glassAnimating &&
+            !glassArrived &&
+            window._startGlassBounceIn &&
+            window._welcomeStarted
+        ) {
             console.warn('triggering fallback glass bounce-in');
             window._startGlassBounceIn({fallback:true});
             // note: do NOT start the debug log sequence here; the fallback
@@ -560,19 +567,19 @@ document.addEventListener("DOMContentLoaded", () => {
         window.addEventListener('focus', () => { resetIntroFadeIfStuck(); scheduleNextCycle(); });
     }
     
-    // Fade out the white overlay, then bounce the glass in from below
+    // Fade out the white overlay. the glass bounce-in used to be
+    // triggered here, but the animation should not start until the
+    // welcome sequence is actually running. startWelcome now handles
+    // calling the helper instead.
     const fadeOverlay = document.getElementById('page-fade-overlay');
     if (fadeOverlay) {
         // Small delay to ensure canvas is ready
         setTimeout(() => {
             fadeOverlay.style.opacity = '0';
-            // After fade finishes, trigger the glass bounce-in
+            // After fade finishes, just remove the element – no glass logic
             setTimeout(() => {
                 fadeOverlay.remove();
-                if (window._startGlassBounceIn) window._startGlassBounceIn();
-                // debug sequence will be triggered within _startGlassBounceIn
-                // itself, so no need to call it here as well (flag guards
-                // duplicate invocations).
+                // glass bounce-in moved to startWelcome()
             }, 800);
         }, 100);
     }
@@ -701,6 +708,40 @@ document.addEventListener("DOMContentLoaded", () => {
     gsap.set(".col-3 .col-content-wrapper-2 .liquid-glass--bend, .col-3 .col-content-wrapper-2 .liquid-glass--face, .col-3 .col-content-wrapper-2 .liquid-glass--edge", { opacity: 0 });
 
     let currentPhrase = 0;
+
+    // Reset all sticky-column GSAP states and currentPhrase back to the
+    // initial layout (col-1 visible on the left, col-2 off-screen right).
+    // Exposed on window so the welcome/pre-welcome code can call it when
+    // the page is forced back to scroll 0.
+    window.resetStickyColumns = function() {
+        currentPhrase = 0;
+        // Kill any running tweens on the columns to avoid interference
+        gsap.killTweensOf(".col-1, .col-2, .col-3, .col-4, .col-img-1, .col-img-2, .col-img img, .col-img-1 img, .col-img-2 img");
+        gsap.killTweensOf(".col-3 .col-content-wrapper .line span, .col-3 .col-content-wrapper-2 .line span");
+        gsap.killTweensOf(".col-3 .col-content-wrapper .liquid-glass--bend, .col-3 .col-content-wrapper .liquid-glass--face, .col-3 .col-content-wrapper .liquid-glass--edge");
+        gsap.killTweensOf(".col-3 .col-content-wrapper-2 .liquid-glass--bend, .col-3 .col-content-wrapper-2 .liquid-glass--face, .col-3 .col-content-wrapper-2 .liquid-glass--edge");
+        // Restore phrase-0 positions immediately (no animation)
+        gsap.set(".col-1", { opacity: 1, scale: 1 });
+        gsap.set(".col-2", { x: "100%", opacity: 1, scale: 1 });
+        gsap.set(".col-3", { x: "100%", y: "100%", scale: 1 });
+        gsap.set(".col-4", { x: "100%", y: "100%" });
+        gsap.set(".col-img-1", { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)", opacity: 1 });
+        gsap.set(".col-img-2", { clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)", opacity: 0 });
+        gsap.set(".col-img-1 img", { scale: 1 });
+        gsap.set(".col-img-2 img", { scale: 1.25 });
+        gsap.set(".col-3 .col-content-wrapper .line span", { y: "0%" });
+        gsap.set(".col-3 .col-content-wrapper-2 .line span", { y: "-125%" });
+        gsap.set(".col-3 .col-content-wrapper-2 .liquid-glass--bend, .col-3 .col-content-wrapper-2 .liquid-glass--face, .col-3 .col-content-wrapper-2 .liquid-glass--edge", { opacity: 0 });
+        gsap.set(".col-3 .col-content-wrapper .liquid-glass--bend, .col-3 .col-content-wrapper .liquid-glass--face, .col-3 .col-content-wrapper .liquid-glass--edge", { opacity: 1 });
+        // Clear any inline styles that the diag code may have forced
+        const el1 = document.querySelector('.col-img-1');
+        const el2 = document.querySelector('.col-img-2');
+        if (el1) el1.removeAttribute('style');
+        if (el2) el2.removeAttribute('style');
+        // Re-apply the deterministic GSAP sets so they override CSS
+        gsap.set(".col-img-1", { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)", opacity: 1 });
+        gsap.set(".col-img-2", { clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)", opacity: 0 });
+    };
 
     ScrollTrigger.create({
         trigger: ".sticky-cols",
@@ -964,6 +1005,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const root = document.documentElement;
             const isScrollable = root.scrollHeight > root.clientHeight;
             root.classList.toggle('has-scrollbar', !!isScrollable);
+            // let other logic (taskbar, etc.) know that the scrollbar state may have
+            // changed. this fires even if the state didn't toggle, which is fine.
+            document.dispatchEvent(new CustomEvent('scrollbarchange', { detail: { isScrollable } }));
         } catch (e) {
             // no-op on weird environments
         }
@@ -1012,6 +1056,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let isFixed = false;
 
+    // helper used by both scroll and resize to keep the fixed taskbar
+    // aligned with its placeholder (which will shrink when a scrollbar
+    // appears/disappears). without this the element would overrun into the
+    // vertical scrollbar until the next resize/restore cycle.
+    function updateFixedDimensions() {
+        const phRect = placeholder.getBoundingClientRect();
+        taskbar.style.left = phRect.left + 'px';
+        taskbar.style.width = phRect.width + 'px';
+        backdrop.style.left = phRect.left + 'px';
+        backdrop.style.width = phRect.width + 'px';
+    }
+
     function onScroll() {
         const scrollY = window.scrollY || window.pageYOffset;
         if (scrollY >= initialTop && !isFixed) {
@@ -1046,6 +1102,9 @@ document.addEventListener('DOMContentLoaded', function () {
             backdrop.style.width = taskbar.offsetWidth + 'px';
             backdrop.style.height = taskbar.offsetHeight + 'px';
             isFixed = false;
+        } else if (isFixed) {
+            // still fixed and still scrolling; keep dimensions in sync
+            updateFixedDimensions();
         }
     }
 
@@ -1076,6 +1135,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
+    // If the scrollbar appears/disappears without a resize, force an update when
+    // the scrollbarchange event fires (see updateScrollbarClass above).
+    document.addEventListener('scrollbarchange', function () {
+        if (isFixed) updateFixedDimensions();
+    });
     // In case the page loads scrolled or content above changes dynamically
     setTimeout(onResize, 200);
 });

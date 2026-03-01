@@ -1389,12 +1389,21 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
       if (!pre) return;
       if (getComputedStyle(pre).display === 'none') {
         pre.style.display = 'flex';
+        // Lock body scroll while the pre-welcome overlay is visible so the
+        // user cannot accidentally scroll the page behind it and trigger
+        // ScrollTrigger column animations.
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('wheel', _preventPreWelcomeScroll, { passive: false });
+        window.addEventListener('touchmove', _preventPreWelcomeScroll, { passive: false });
         if (window._animateToggleOnPreShow && window.showPortalToggleOnce) {
           window.showPortalToggleOnce();
           window._animateToggleOnPreShow = false;
         }
       }
     }
+    // lightweight scroll-prevention for the pre-welcome phase
+    function _preventPreWelcomeScroll(e) { e.preventDefault(); }
 
     // pre-create & preload the background video used by the sound-warning overlay
     // so the element (and its media) exists immediately instead of being built
@@ -1626,6 +1635,15 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         window._allowWelcome = true;
         const pre = document.getElementById('pre-welcome-page');
         if (pre) pre.style.display = 'none';
+        // Remove pre-welcome scroll lock (the welcome's own disableScroll
+        // will take over immediately after this).
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        window.removeEventListener('wheel', _preventPreWelcomeScroll);
+        window.removeEventListener('touchmove', _preventPreWelcomeScroll);
+        // Reset sticky columns back to their initial state in case the user
+        // managed to scroll behind the overlay before it was locked.
+        if (window.resetStickyColumns) window.resetStickyColumns();
         // clear any white‑flash remnants so the welcome screen is visible
         document.body.classList.remove('is-flashed');
         const overlay = document.querySelector('.white-flash-overlay');
@@ -1763,7 +1781,7 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
                 </div>
             </div>
             <div class="glass-icon-bottom-row">
-                <img src="images/icons/internet.png" alt="" />
+                <img src="images/icons/pinkGlobe.png" alt="" style="margin-right: -0.2rem;"/>
                 <img src="images/icons/run-build-configure.svg" alt="" />
                 <img src="images/icons/mouse.png" alt="" />
                 <img src="images/icons/multiWindows.svg" alt="" />
@@ -2096,9 +2114,17 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
         </div>
     </section>
 
-    <section class="outro" style="background-image: url('images/outroBG.webp');">
-        <h2>Thank you for visiting!</h2>
-        <p>We hope you found what you were looking for.</p>
+    <section class="outro" style="color: white; position: relative; font-family: 'Segoe UI Light'">
+      <img src="images/icons/frutigerArrow.webp" alt="arrow" style="width: 4rem; height: 4rem; position: absolute; top: 3rem; left: 14%;">
+      <img src="images/icons/frutigerArrow.webp" alt="arrow" style="width: 4rem; height: 4rem; position: absolute; top: 3rem; left: 22%;">
+      <div style="width: 98%; text-align: left; margin-top: -32rem;">
+        <div style="display: flex; gap: 1rem; margin-left: 8rem; font-family: 'Frutiger';">
+          <p>Click here to download the Schematics</p>
+          <p>Click here to learn how to use it</p>
+        </div>
+        <h1 style="width: 100%; text-align: left;">Ready to start building?</h1>
+      </div>
+
 
         <div class="social-links" style="background-color: 	#00000061; color: #ffffff; position: absolute; bottom: 0; left: 0; right: 0; width: 100%; padding-top: 0.8rem;">
             <div id="OS logo" style="margin-left: 1.5rem; margin-top: 0.4rem;display: flex; flex-direction: column; align-items: center;">
@@ -2108,7 +2134,7 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             <div id="credit" style="font-family: 'Frutiger'; margin-left: 1.8rem; margin-top: 0.5rem;display: flex; flex-direction: row; flex-wrap: wrap; max-width: calc(100% - 14rem);">
                 <h4 style="width: 100%;">CommonWorld  F U T U R E  Project 000 ~ Codename `Sakura Archive`</h4>
                 <p>dge5: Original Vision, Architect</p> 
-                <p>happygrassblock: Architect, Contiuned Development, Website Design</p>
+                <p>happygrassblock: Contiuned Development, Architect, Website Design</p>
                 <p>wslsp713: Site Discovery</p>
                 <p>52013145129: Site Discovery</p>
                 <p>m1chelin_man: Site Discovery</p>
@@ -2431,11 +2457,38 @@ OS: Horizon OS 1.0
                     if (welcomeProgressBar) welcomeProgressBar.style.display = 'none';
                     enableScroll();
                     window.scrollTo(0, 0);
-                    if (taskbar) taskbar.style.visibility = 'visible';
+                    // Safety net: reset sticky columns to initial state in case
+                    // scroll events during the welcome sequence moved them.
+                    if (window.resetStickyColumns) window.resetStickyColumns();
+                    if (taskbar) {
+                        taskbar.style.visibility = 'visible';
+                        // force a resize event so the sticky taskbar recalculates its
+                        // layout (in particular, width) now that scrollbars may have
+                        // appeared. without this the bar sometimes extends under the
+                        // newly-added scrollbar until the user manually scrolls.
+                        window.dispatchEvent(new Event('resize'));
+                    }
 
                     await loadPlaylist();
                     if (playlist.length) {
                         loadTrack(0, true);
+                    }
+                    // If autoplay was blocked by the browser, retry on first
+                    // user interaction so the music starts as soon as possible.
+                    if (bgMusic && bgMusic.paused && playlist.length) {
+                        const resumeOnGesture = () => {
+                            if (bgMusic && bgMusic.paused) {
+                                bgMusic.play()
+                                    .then(() => setPlayingState(true))
+                                    .catch(() => {});
+                            }
+                            document.removeEventListener('click', resumeOnGesture);
+                            document.removeEventListener('touchstart', resumeOnGesture);
+                            document.removeEventListener('keydown', resumeOnGesture);
+                        };
+                        document.addEventListener('click', resumeOnGesture, { once: true });
+                        document.addEventListener('touchstart', resumeOnGesture, { once: true });
+                        document.addEventListener('keydown', resumeOnGesture, { once: true });
                     }
                     updateVolumeIcon();
                     setTimeout(function() {
@@ -2489,6 +2542,15 @@ OS: Horizon OS 1.0
 
                 loadStoredVolume();
 
+                // Pre-create the background music Audio element NOW while we're
+                // still inside the user-gesture call chain (click → toggle →
+                // hidePreWelcomeAndStartWelcome → startWelcome). Browsers track
+                // which Audio elements were created during a user gesture and
+                // allow .play() on them later even outside a gesture context.
+                // This ensures autoplay works when finishWelcome fires after the
+                // welcome audio ends.
+                ensureAudio();
+
                 const welcomeAudio = new Audio('sounds/welcome.mp3');
                 welcomeAudio.volume = 0.3;
 
@@ -2506,6 +2568,11 @@ OS: Horizon OS 1.0
                 if (welcomeProgressBar) {
                     welcomeProgressBar.style.display = '';
                     welcomeProgressBar.style.opacity = '1';
+                }
+
+                // kick off the glass icon bounce now that the welcome UI is visible
+                if (window._startGlassBounceIn) {
+                    window._startGlassBounceIn();
                 }
 
                 // start debug log only now that the welcome UI is visible
