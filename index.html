@@ -1444,13 +1444,69 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     // kick off loading now even if not in DOM
     _soundWarningBgVideo.load();
 
-    // always show the audio notice; pass `isFirstVisit` so the intro video can be gated
-    // the callback now handles both continuation and showing the pre‑welcome
-    // page so the portal does not wait for the later `load` event.
-    showSoundWarning(function() {
-      continueApp();
-      showPreWelcome();
-    }, isFirstVisit);
+    // If returning from a sub-page (back button), skip all intro sequences
+    if (sessionStorage.getItem('skipIntro')) {
+      sessionStorage.removeItem('skipIntro');
+      // Set flags IMMEDIATELY (before any other script runs) so the
+      // welcome / pre-welcome IIFEs that execute later see them and bail out.
+      window._skipIntroActive = true;
+      window._allowWelcome = true;
+      window._welcomeStarted = true;
+      window._toggleAnimationPlayed = true;
+      window.initiallyMuted = true;
+
+      // remove placeholder (exists in DOM already)
+      const _ph = document.getElementById('bg-placeholder');
+      if (_ph) _ph.remove();
+      // hide pre-welcome (exists in DOM already — we're inside its div)
+      const _pre = document.getElementById('pre-welcome-page');
+      if (_pre) _pre.style.display = 'none';
+
+      // The welcome splash, glass icons, progressbar, and taskbar are defined
+      // AFTER this script block, so hide/show them once the DOM is ready.
+      document.addEventListener('DOMContentLoaded', function() {
+        var ids = ['welcome-splash', 'welcome-progressbar', 'glass-icons-container', 'welcome-splash-image'];
+        ids.forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
+        var tb = document.querySelector('.taskbar-container');
+        if (tb) tb.style.visibility = 'visible';
+        // unlock scroll in case anything locked it
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, 0);
+        window.dispatchEvent(new Event('resize'));
+      });
+
+      // start background systems (lights, etc.) without portal audio
+      startEverything();
+
+      // load music playlist and start playback (mirrors finishWelcome)
+      window.addEventListener('load', async function() {
+        window.dispatchEvent(new Event('resize'));
+        if (typeof loadPlaylist === 'function') {
+          await loadPlaylist();
+          if (playlist && playlist.length) loadTrack(0, true);
+        }
+        if (typeof loadStoredVolume === 'function') {
+          loadStoredVolume();
+          if (typeof applyVolume === 'function') applyVolume();
+        }
+        if (typeof updateVolumeIcon === 'function') updateVolumeIcon();
+      });
+    } else {
+      // Normal flow: always show the audio notice; pass `isFirstVisit` so the intro video can be gated
+      // the callback now handles both continuation and showing the pre‑welcome
+      // page so the portal does not wait for the later `load` event.
+      showSoundWarning(function() {
+        continueApp();
+        showPreWelcome();
+      }, isFirstVisit);
+    }
 
     // Sound warning / audio-notice dialog (always shown). `playIntro` controls whether the intro video runs.
     function showSoundWarning(onDone, playIntro = false) {
@@ -2037,19 +2093,19 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
                     </div>
                 </div>
                 <div class="taskbar-btn" style="width: auto;">
-                    <div class="taskbar-item icon-text" style="padding-left: 0.5rem; padding-right: 0.5rem;">
+                  <div class="taskbar-item icon-text" style="padding-left: 0.5rem; padding-right: 0.5rem;" onclick="sessionStorage.setItem('skipIntro','1');window.location.href='/download'">
                         <img class="icon" src="images/icons/download.png" alt="Home" style="min-width: 2.2rem; min-height: 2.2rem;">
                         <p class="taskbar-label">Download</p>
                     </div>
                 </div>
                 <div class="taskbar-btn" style="width: auto;">
-                    <div class="taskbar-item icon-text" style="padding-left: 0.5rem; padding-right: 0.5rem;">
+                    <div class="taskbar-item icon-text" style="padding-left: 0.5rem; padding-right: 0.5rem;" onclick="sessionStorage.setItem('skipIntro','1');window.location.href='/instructions'">
                         <img class="icon" src="images/icons/book.png" alt="Home" style="min-width: 2.1rem; min-height: 2.1rem;">
                         <p class="taskbar-label">How to use / build?</p>
                     </div>
                 </div>
                 <div class="taskbar-btn" style="width: auto;">
-                    <div class="taskbar-item icon-text" style="padding-left: 0.5rem; padding-right: 0.5rem;">
+                    <div class="taskbar-item icon-text" style="padding-left: 0.5rem; padding-right: 0.5rem;" onclick="sessionStorage.setItem('skipIntro','1');window.location.href='/progress'">
                         <img class="icon" src="images/icons/stats.png" alt="Home" style="min-width: 2.1rem; min-height: 2.1rem;">
                         <p class="taskbar-label">Stats & Progress</p>
                     </div>
@@ -2509,6 +2565,8 @@ OS: Horizon OS 1.0
             }
 
             function startWelcome() {
+                // skip-intro: bail immediately when returning from sub-page
+                if (window._skipIntroActive) return;
                 // only allow once portal has been cleared
                 if (!window._allowWelcome) {
                     console.log('startWelcome blocked until pre-welcome cleared');
