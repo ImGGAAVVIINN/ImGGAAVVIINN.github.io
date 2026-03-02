@@ -278,7 +278,13 @@ const initWelcomeSplashGlass = () => {
         if (!glassIconsContainer || glassDismissed) return;
         const ratio = window.devicePixelRatio || 1;
         const screenX = glassPos.x / ratio;
-        const screenY = (canvas.height - glassPos.y) / ratio; // flip Y
+        let screenY = (canvas.height - glassPos.y) / ratio; // flip Y
+        // on very tall displays (e.g. 4K) nudge the glass downwards so it
+        // remains centred in the visible viewport. the formula below adds a
+        // small extra offset only when innerHeight exceeds 1200px; 1080p is
+        // unaffected.
+        const extra = Math.max(0, (window.innerHeight - 1200) * 0.05);
+        screenY += extra;
         glassIconsContainer.style.left = screenX + 'px';
         glassIconsContainer.style.top = screenY + 'px';
         // keep the centering transform even if JS big-steps values
@@ -595,10 +601,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!debugEl) return;
 
         debugEl.style.fontFamily = "'Segoe UI Light', 'Frutiger', sans-serif";
-        debugEl.style.fontSize = '0.85rem';
+        debugEl.style.fontSize = 'clamp(1rem, 1.1vh, 1.8rem)';
         debugEl.style.color = '#b8f6d1';
-        debugEl.style.lineHeight = '1.4';
-        debugEl.style.height = '2rem';
+        debugEl.style.lineHeight = '1.35';
+        debugEl.style.height = 'clamp(2.3rem, calc(4.2vh - 0.9rem + 0.4vw), 6rem)';
         debugEl.style.overflow = 'hidden';
 
         const lines = [
@@ -1723,4 +1729,39 @@ document.addEventListener('DOMContentLoaded', function () {
     })();
   });
 })();
+
+// Align the .outro-arrow images so they sit above their respective taskbar buttons
+// (Download and How-to-use). The arrows are position:absolute inside .outro; the
+// taskbar may be fixed at the top by the time the user scrolls there. We recompute
+// on scroll/resize.
+document.addEventListener('DOMContentLoaded', function () {
+    const arrowDownload = document.querySelector('.outro-arrow-download');
+    const arrowInstructions = document.querySelector('.outro-arrow-instructions');
+    if (!arrowDownload && !arrowInstructions) return;
+
+    function alignArrows() {
+        const taskbarBtns = document.querySelectorAll('.taskbar-btns .taskbar-btn');
+        // The taskbar buttons order: 0=Home, 1=Download, 2=Instructions, 3=Stats
+        const downloadBtn = taskbarBtns[1];
+        const instructionsBtn = taskbarBtns[2];
+        const outroSection = document.querySelector('.outro');
+        if (!outroSection) return;
+        const outroRect = outroSection.getBoundingClientRect();
+
+        if (arrowDownload && downloadBtn) {
+            const btnRect = downloadBtn.getBoundingClientRect();
+            const centerX = btnRect.left + btnRect.width / 2 - outroRect.left;
+            arrowDownload.style.left = (centerX - arrowDownload.offsetWidth / 2) + 'px';
+        }
+        if (arrowInstructions && instructionsBtn) {
+            const btnRect = instructionsBtn.getBoundingClientRect();
+            const centerX = btnRect.left + btnRect.width / 2 - outroRect.left;
+            arrowInstructions.style.left = (centerX - arrowInstructions.offsetWidth / 2) + 'px';
+        }
+    }
+
+    alignArrows();
+    window.addEventListener('scroll', alignArrows, { passive: true });
+    window.addEventListener('resize', alignArrows);
+});
 
