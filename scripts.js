@@ -159,18 +159,25 @@ Draggable.create(proxy, {
     gsap.set(toggle, { '--complete': complete, '--delta': Math.min(Math.abs(this.deltaX), 12) })
   },
   onDragEnd: function () {
+    const shouldBePressed = this.complete >= 50
     gsap.fromTo(
       toggle,
       {
         '--complete': this.complete,
       },
       {
-        '--complete': this.complete >= 50 ? 100 : 0,
+        '--complete': shouldBePressed ? 100 : 0,
         duration: 0.15,
         onComplete: () => {
           gsap.delayedCall(0.05, () => {
             toggle.dataset.active = false
-            toggle.setAttribute('aria-pressed', this.complete >= 50)
+            // only update aria-pressed when the state actually changes;
+            // setting the same value still fires MutationObservers and
+            // was causing false welcome-page triggers on drag-and-return
+            const wasPressed = toggle.getAttribute('aria-pressed') === 'true'
+            if (wasPressed !== shouldBePressed) {
+              toggle.setAttribute('aria-pressed', shouldBePressed)
+            }
           })
         },
       }

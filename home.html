@@ -985,10 +985,16 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     // Listen for toggle state changes
     const toggle = document.querySelector('.liquid-toggle');
     if (toggle) {
+      // track previous aria-pressed value so we only react to *real* changes
+      let _prevAriaPressed = toggle.getAttribute('aria-pressed');
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (mutation.attributeName === 'aria-pressed') {
-            const isPressed = toggle.getAttribute('aria-pressed') === 'true';
+            const raw = toggle.getAttribute('aria-pressed');
+            // skip if the value didn't actually change (e.g. drag returned to start)
+            if (raw === _prevAriaPressed) return;
+            _prevAriaPressed = raw;
+            const isPressed = raw === 'true';
             const currentTime = audioContext.currentTime;
             
             // Cancel any scheduled changes
@@ -1019,8 +1025,10 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
             // prevent this path from running in that case.  Drags never set
             // that flag, so they hit this branch and immediately start the
             // welcome (via the merged handler if available).
-            if (!window._skipMutationFlash) {
-                if (window.mergedTriggerWhiteFlash) window.mergedTriggerWhiteFlash(isPressed);
+            // Only trigger the flash when the toggle turns ON (isPressed===true);
+            // turning it OFF should never start the welcome flow.
+            if (!window._skipMutationFlash && isPressed) {
+                if (window.mergedTriggerWhiteFlash) window.mergedTriggerWhiteFlash();
                 else triggerWhiteFlash(isPressed);
             }
           }
@@ -1385,6 +1393,8 @@ body, #pre-welcome-page { font-family: 'Frutiger', sans-serif; }
     // helper used by both the early audio callback and the load handler. keeps
     // logic in one place so the portal appears without a mysterious delay.
     function showPreWelcome() {
+      // never re-show the portal once the welcome flow has started
+      if (window._allowWelcome || window._welcomeStarted) return;
       const pre = document.getElementById('pre-welcome-page');
       if (!pre) return;
       if (getComputedStyle(pre).display === 'none') {
