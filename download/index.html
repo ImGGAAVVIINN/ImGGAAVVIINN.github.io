@@ -1,1 +1,52 @@
-<h1>Download Page</h1>
+<!DOCTYPE html>
+<html lang="en" class="lenis lenis-smooth has-scrollbar" style="--taskbar-height: 45px;" data-theme="light" data-mapped="false" data-delta="true" data-debug="false" data-active="false" data-bounce="true">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Download - integrated Panasonic</title>
+  <link rel="stylesheet" href="/home.css" />
+  <!-- override any archive background rules -->
+  <style>
+    html, body, #Contents_all, #ptop_contents {
+      background: none !important;
+      background-image: none !important;
+    }
+    body {
+      margin:0;
+      padding-top: var(--taskbar-height);
+      background: transparent !important;
+    }
+    .bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      pointer-events: none;
+    }
+    main { position: relative; z-index: 1; }
+  </style>
+</head>
+<body class="has-scrollbar">
+    <video class="bg-video" autoplay muted loop playsinline>
+        <source src="/videos/altBg.mp4" type="video/mp4">
+    </video>
+
+    <main>
+      <!-- panasonic archive content will be injected here -->
+      <div id="panasonic-wrapper"></div>
+    </main>
+
+    <script>
+      // fetch and insert only the body of the archived page
+      fetch('/tmp/panasonic.html')
+        .then(r => r.text())
+        .then(html => {
+          const m = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+          if (m) document.getElementById('panasonic-wrapper').innerHTML = m[1];
+        });
+    </script>
+</body>
+</html>
