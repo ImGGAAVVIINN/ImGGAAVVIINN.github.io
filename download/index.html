@@ -1,52 +1,934 @@
-<!DOCTYPE html>
-<html lang="en" class="lenis lenis-smooth has-scrollbar" style="--taskbar-height: 45px;" data-theme="light" data-mapped="false" data-delta="true" data-debug="false" data-active="false" data-bounce="true">
+<html lang="en" class="lenis lenis-smooth has-scrollbar" style="--taskbar-height: 45px; background: transparent;" data-theme="light" data-mapped="false" data-delta="true" data-debug="false" data-active="false" data-bounce="true">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Download - integrated Panasonic</title>
-  <link rel="stylesheet" href="/home.css" />
-  <!-- override any archive background rules -->
+<style>html, body, iframe {background: transparent !important;}</style>
+  
+  
+  
+  <link rel="stylesheet" href="/home.css">
   <style>
-    html, body, #Contents_all, #ptop_contents {
-      background: none !important;
-      background-image: none !important;
+    /* use the custom property set on <html> for height */
+        body {
+            padding-top: var(--taskbar-height);
+            background: transparent !important;
+        }
+        .bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            pointer-events: none;
+        }
+        main {
+            position: relative;
+            z-index: 1;
+        }
+    /* ensure the blurred backdrop stays positioned underneath the fixed taskbar */
+    .taskbar-backdrop {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: var(--taskbar-height) !important;
+      z-index: 9998 !important;
     }
-    body {
-      margin:0;
-      padding-top: var(--taskbar-height);
-      background: transparent !important;
-    }
-    .bg-video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: -1;
-      pointer-events: none;
-    }
-    main { position: relative; z-index: 1; }
   </style>
+  <!-- PANASONIC HEAD MERGE -->
+  <meta http-equiv="Content-Type" content="text/html; charset=shift_jis">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta http-equiv="Content-Script-Type" content="text/javascript">
+  <meta name="robots" content="noodp">
+  <meta name="keywords" content="�p�i�\�j�b�N,Panasonic,���i���,�f�W�^��,AV,�����Ɠd,���e,���N,�p�\�R��,�p�\�R�����Ӌ@��,�g�ѓd�b,�J�[�i�r/�J�[AV,�Z��ݔ�,����,�l,�l�̂��q�l">
+  <meta name="description" content="�p�i�\�j�b�N���i���̃g�b�v�y�[�W�ł��B">
+  <link rel="alternate" type="application/rss+xml" title="�p�i�\�j�b�N�z�[���y�[�W�u�X�V���v" href="https://web.archive.org/web/20130115045821/http://panasonic.jp/whatsnew.xml">
+  <link rel="stylesheet" type="text/css" href="https://web.archive.org/web/20130202134526cs_/http://panasonic.jp/08ptop/index/css/import_ptop_100401.css" media="all">
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/common/js/ga2012_googleAnalytics.js"></script>
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/common/js/ga2012_jquery.js"></script>
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/common/js/ga2012_jquery.cookie.js"></script>
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/common/js/ga2012_base.js"></script>
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/common/js/ga2012_navigation.js"></script>
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/common/js/jp/ga2012_bottomlink_data.js"></script>
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/common/js/ga2012_bottomlink_products.js"></script>
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/common/js/jp/ga2012_countrySelect_setting.js"></script>
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/common/js/ga2012_countrySelect.js"></script>
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/12ptop/common/js/main.js"></script>
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/12ptop/common/js/uinsight.js"></script>
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/08ptop/index/js/main_ptop_100401.js"></script>
+  <script language="javascript">AC_FL_RunContent = 0;</script>
+  <script src="https://web.archive.org/web/20130202134526js_/http://panasonic.jp/08ptop/index/js/AC_RunActiveContent.js" language="javascript"></script>
+  <!-- END PANASONIC HEAD MERGE -->
+        
+    
+        
+    
+        
+        
+    
+    
+    
+        
 </head>
-<body class="has-scrollbar">
+<body class="has-scrollbar" style="">
     <video class="bg-video" autoplay muted loop playsinline>
         <source src="/videos/altBg.mp4" type="video/mp4">
     </video>
+  
+  
+        
+        
+        
+                
+                
 
+
+        
+        
+        
+        
+        
+        
+
+        
+    
     <main>
-      <!-- panasonic archive content will be injected here -->
-      <div id="panasonic-wrapper"></div>
-    </main>
 
-    <script>
-      // fetch and insert only the body of the archived page
-      fetch('/tmp/panasonic.html')
-        .then(r => r.text())
-        .then(html => {
-          const m = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-          if (m) document.getElementById('panasonic-wrapper').innerHTML = m[1];
-        });
-    </script>
-</body>
-</html>
+            <div class="notification flyout col-content-wrapper liquid-glass flyout-hidden mode-top" style="right: 0px; left: auto; top: 254px;">
+                <div class="liquid-glass--bend"></div>
+                <div class="liquid-glass--face"></div>
+                <div class="liquid-glass--edge"></div>
+                <h2>Notification LOL</h2>
+                <p>asdfasdgdgh  sdgf</p>
+            </div>
+
+            <div class="music flyout col-content-wrapper liquid-glass mode-top flyout-hidden" style="right: 1rem; left: auto; top: 823px;">
+                <div class="liquid-glass--bend"></div>
+                <div class="liquid-glass--face"></div>
+                <div class="liquid-glass--edge"></div>
+
+                <div style="background-color: rgba(50, 50, 50, 0.7); padding: 1rem; border-radius: 0.5rem;font-weight: 100;">
+                    <p style="color: rgb(180, 180, 180);" id="lastSong">2. alyzea - wake up, it's 2006</p>
+                    <h2 style="margin-top: 0.01rem; margin-bottom: 0.1rem; color:white;">Now Playing</h2>
+                    <p style="color:white;" id="currentSong">3. alyzea - home menu</p>
+                    <p style="color: rgb(180, 180, 180);" id="nextSong">4. alyzea - r e f l e c t i o n s</p>
+                </div>
+                <img id="cdImage" class="cd-spinning playing" src="../images/cd.png" style="width: 75%; height: 50%; margin-bottom: 1rem; margin: auto;top: 1rem;" alt="Album Art">
+                <div class="music-player-controls" style="margin: auto;top: 2rem;">
+                  <button id="audioBack" title="Previous song" style="background: none; border: none; margin-right: 1rem;">
+                    <img src="../images/icons/music/music_player_back.png" alt="Music Player - Back Button">
+                  </button>
+
+                  <button id="audioPlayPause" title="Play / Pause" style="background: none; border: none; width: 2.5rem; height: 2.5rem; margin-right: 1rem;">
+                    <img src="../images/icons/music/music_player_pause.png" id="audioPlayPauseImage" alt="Music Player - Play / Pause Button">
+                  </button>
+
+                  <button id="audioForward" title="Next song" style="background: none; border: none;">
+                    <img src="../images/icons/music/music_player_forward.png" alt="Music Player - Forward Button">
+                  </button>
+                </div>
+            </div>
+
+        
+
+            <div id="panasonic-main-body">
+
+
+
+<div id="Contents_all">
+<div id="ptop_contents">
+<h1>�p�i�\�j�b�N���i���</h1>
+<div id="maincontents_top">
+	<div class="ptop_leftnavi">
+		<div id="ptop_logo"><a href="index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_logo.gif" alt="Panasonic ideas for life" width="198" height="87" border="0" onclick="javascript:pageTracker._trackPageview('/click?link=ptoplogo_top');"></a></div>
+		<div class="lnavi_lnk lnavi_areaA"><a href="https://web.archive.org/web/20130127071749/http://panasonic.jp/products.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_psearch.gif" alt="���i���ꗗ" width="198" height="87" class="lnk_img"></a></div>
+		<div class="lnavi_lnk lnavi_areaA"><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/cs/index2.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_support.gif" alt="�T�|�[�g���" width="198" height="87" class="lnk_img"></a></div>
+		<div id="ptop_leftnavi_cm" class="lnavi_areaB">
+			<div id="ptop_leftnavi_cm_main">
+					<div id="ptop_leftnavi_cm_swf">
+					<!--<iframe width="180" height="100" src="http://www.youtube.com/embed/videoseries?list=PLFF31A2206721D8D6&amp;hl=ja_JP&amp;autoplay=0&amp;showinfo=0&amp;autohide=1&amp;fs=0&amp;controls=0" frameborder="0" allowfullscreen></iframe>-->
+						<iframe id="ytplayer" type="text/html" width="180" height="100" src="https://web.archive.org/web/20130202134526if_/http://www.youtube.com/embed/xjSxypUWvBk?controls=0&amp;enablejsapi=1&amp;autohide=1&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+					</div>
+					<script type="text/javascript">
+						var ytload = function(){
+						var params = { allowScriptAccess: "always", Menu:false };
+						var atts = { id: "myytplayer" };
+						//swfobject.embedSWF("https://web.archive.org/web/20130202134526/http://www.youtube.com/v/xjSxypUWvBk?enablejsapi=1&version=3&playerapiid=ptop_leftnavi_cm_swf&rel=0&autoplay=0&showinfo=0&autohide=1&fs=0&controls=0", "ptop_leftnavi_cm_swf", "180", "100", "8", null, null, params, atts);
+						swfobject.embedSWF("https://web.archive.org/web/20130202134526/http://www.youtube.com/apiplayer?" +
+                     "version=3&enablejsapi=1&playerapiid=player1&modestbranding=1",  "ptop_leftnavi_cm_swf", "180", "100", "8", null, null, params, atts);
+					}();
+					var ytplayer;
+					var plist;
+					var num;
+					var flag = true;
+					function onYouTubePlayerReady(playerId) {
+						ytplayer = document.getElementById("myytplayer");
+						ytplayer.addEventListener("onStateChange", "onytplayerStateChange");
+						ytplayer.mute();
+						ytplayer.loadVideoById('xjSxypUWvBk');
+						ytplayer.cuePlaylist({list:'PLFF31A2206721D8D6',
+							listType:'playlist',
+							index:0,
+							startSeconds:0,
+							suggestedQuality:'small'});
+						ytplayer.playVideo();
+					}
+					function onytplayerStateChange(newState) {
+						//alert(newState);
+						if(flag==true&&newState==2){
+							ytplayer.setShuffle(true);
+							ytplayer.setLoop(true);
+							ytplayer.loadVideoById(0);
+							plist = ytplayer.getPlaylist();
+							//ytplayer.loadPlaylist(plist);
+							//ytplayer.loadPlaylist('')
+							//ytplayer.loadVideoById(plist[1]);
+							flag = false;
+						}
+						if(flag==false&&newState==2){
+							//alert(newState);
+							//ytplayer.playVideo();
+						}
+						if(flag==false&&newState==0){
+							ytplayer.loadPlaylist(plist);
+						}
+					}
+				</script>
+				<script>
+					// 2. This code loads the IFrame Player API code asynchronously.
+					var tag = document.createElement('script');
+					tag.src = "https://web.archive.org/web/20130202134526/http://www.youtube.com/player_api";
+					var firstScriptTag = document.getElementsByTagName('script')[0];
+					firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+					// 3. This function creates an <iframe> (and YouTube player)
+					//    after the API code downloads.
+					var player;
+					function onYouTubePlayerAPIReady() {
+						player = new YT.Player('ytplayer', {
+							height: '100',
+							width: '180',
+							videoId: 'xjSxypUWvBk',
+							events: {
+							'onReady': onPlayerReady,
+							'onStateChange': onPlayerStateChange
+							}
+						});
+					}
+					// 4. The API will call this function when the video player is ready.
+					function onPlayerReady(event) {
+						event.target.mute();
+						event.target.cuePlaylist({list:'PLFF31A2206721D8D6',
+							listType:'playlist',
+							index:0,
+							startSeconds:0,
+							suggestedQuality:'small'});
+						event.target.playVideo();
+					}
+					function onPlayerStateChange(event) {
+						if(flag==true&&event.data==5){
+							player.setShuffle(true);
+							player.setLoop(true);
+							player.playVideoAt(0);
+							flag = false;
+						}
+					}
+				</script>
+			</div>
+		</div>
+		<div class="lnavi_areaA" id="ptop_leftnavi_bnr">
+			<ul>
+				<li><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/info/information.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_productinfo.gif" width="180" height="35" alt="���i�Ɋւ����؂Ȃ��m�点"></a></li>
+			</ul>
+		</div>
+		<div id="ptop_leftnavi_club" class="lnavi_areaA">
+			<dl>
+				<dt><a href="https://web.archive.org/web/20130202134526/http://club.panasonic.jp/index.html?utm_source=panasonic_jp&amp;utm_medium=panabanner&amp;utm_campaign=clubtopptop"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_club.gif" width="180" height="103" alt="����T�C�g CLUB Panasonic ���p�ғo�^����T�������ς��I"></a></dt>
+				<dd class="lnk2"><a href="https://web.archive.org/web/20130202134526/http://club.panasonic.jp/guideinfo/about.html?utm_source=panasonic_jp&amp;utm_medium=panabanner&amp;utm_campaign=guideptop"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_club_lnk3.gif" width="44" height="13" alt="�ڂ���"></a></dd>
+				<dd class="lnk">
+					<ul>
+						<li class="mover"><a href="https://web.archive.org/web/20130202134526/http://club.panasonic.jp/index.html?utm_source=panasonic_jp&amp;utm_medium=panabanner&amp;utm_campaign=clubtopptop"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_club_lnk1.gif" width="74" height="18" alt="�g�b�v�y�[�W"></a></li>
+						<li class="mover"><a href="https://web.archive.org/web/20130202134526/http://club.panasonic.jp/fun/sec/mp/login.do?utm_source=panasonic_jp&amp;utm_medium=panabanner&amp;utm_campaign=loginptop"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_club_lnk2.gif" width="53" height="18" alt="���O�C��"></a></li>
+					</ul>
+				</dd>
+				<!--<dd class="mover"><a href="http://club.panasonic.jp/repair/"><img src="08ptop/index/parts_100401/ptop_leftnavi_repair.gif" width="180" height="31" alt="�֗��ȏC���T�[�r�X"></a></dd>-->
+				<dd class="mover"><a href="https://web.archive.org/web/20130202134526/http://club.panasonic.jp/mall/open/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_mall.gif" alt="���Օi�ȂǃI�����C���V���b�s���O�@CLUB Panasonic My Mall" width="180" height="31"></a></dd>
+			</dl>
+		</div>
+		<div id="ptop_leftnavi_pcenter" class="lnavi_areaB">
+			<dl class="pcenter">
+				<dt><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/center/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_center_ttl.gif" width="175" height="14" alt="Panasonic Center"></a></dt>
+				<dd><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/center/tokyo/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_center_lnk1.gif" width="135" height="12" alt="�p�i�\�j�b�N�Z���^�[����"></a></dd>
+				<dd><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/center/osaka/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_center_lnk2.gif" width="135" height="12" alt="�p�i�\�j�b�N�Z���^�[���"></a></dd>
+			</dl>
+			<dl>
+				<dd><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/showroom/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_center_lnk3.gif" width="175" height="12" alt="�p�i�\�j�b�N���r���O�V���E���[��"></a></dd>
+			</dl>
+		</div>
+		<div id="ptop_leftnavi_cat" class="lnavi_areaB">
+			<dl>
+				<dt class="lnavi_lnk"><a href="https://web.archive.org/web/20130209123412/http://panasonic.jp/catalog.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_cat.gif" alt="WEB�J�^���O" width="198" height="40"></a></dt>
+			</dl>
+		</div>
+		<div id="ptop_leftnavi_wp" class="lnavi_areaB">
+			<dl>
+				<dt class="lnavi_lnk"><a href="https://web.archive.org/web/20130123113259/http://panasonic.jp/wp.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_wp.gif" alt="�ǎ��E�X�N���[���Z�[�o�[" width="198" height="40"></a></dt>
+			</dl>
+		</div>
+		<div id="ptop_leftnavi_mob" class="lnavi_areaB">
+			<dl>
+				<dt class="mover"><a href="https://web.archive.org/web/20130202134526/mailto:/?subject=%83p%83i%83\%83j%83b%83N%8f%a4%95i%8f%ee%95%f1&amp;body=http://p-mp.jp/p/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_mob.gif" width="198" height="92" alt="���o�C���T�C�g�@http://p-mp.jp/p/ URL�����[�����M"></a></dt>
+			</dl>
+		</div>
+		<div id="ptop_leftnavi_etc" class="lnavi_areaB">
+			<dl>
+				<dd><a href="https://web.archive.org/web/20130202134526/https://club.panasonic.jp/fun/open/ms/pa_entry_receipt.do">&gt;&gt;���[���}�K�W��</a></dd>
+<!--				<dd><a href="javascript:void(0);" onClick="openEnqWindow('https://club.panasonic.jp/fun/open/we/start.do?cid=1620204450')">&gt;&gt;�A���P�[�g</a></dd>
+-->				<dd><a href="https://web.archive.org/web/20130115031104/http://panasonic.jp/sitemap.html">&gt;&gt;�T�C�g�}�b�v</a></dd>
+			</dl>
+		</div>
+		<div id="ptop_leftnavi_gpc" class="lnavi_areaC">
+			<dl>
+				<dt class="mover"><a href="tourist/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_gpc.gif" width="180" height="119" alt="General Products Catalog(�C�O�d�l���i)"></a></dt>
+				<dt class="mover"><a href="https://web.archive.org/web/20130202134526/http://ifa.panasonic.eu/en/" target="_blank"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_leftnavi_ifa.jpg" width="180" height="119" alt="Panasonic LIVE @ IFA 8��31��-9��5�����b�Z�x�������i�h�C�c�j"></a></dt>
+			</dl>
+		</div>
+	</div><!-- /end Leftnavi -->
+	<div class="ptop_R">
+	  <div id="ptop_top">
+		  <div id="ptop_search">
+				<form method="get" action="https://web.archive.org/web/20130202134526/http://vftr.panasonic.co.jp/jp/search.x">
+					<p><label for="MF_form_phrase">�L�[���[�h</label><input type="text" name="q" id="MF_form_phrase" value=""><input type="image" src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_btn_serch_submit.gif" id="ptop-search-submit" alt="����"><input type="hidden" name="ie" value="SJIS"></p>
+				</form>
+			</div>
+		</div>
+		<!-- PANEL -->
+		<div id="ptop_panel_container" style="border-bottom: #00000000;">
+			<h2>���i�J�e�S���[����T��</h2>
+			<div id="ptop_panel_main">
+				<div id="ptop_panel_bg"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base.png" alt="" width="779" height="458"></div>
+				<div id="ptop_panel_avc" class="panel_base">
+					<div class="panel_waku"><span></span></div>
+					<div class="ptop_panel_ttl"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_ttl_avc.gif" alt="�f�W�^���EAVC" width="109" height="19"></div>
+					<div class="ptop_panel_o">
+						<dl>
+							<dt class="mover"><a href="https://web.archive.org/web/20130127064852/http://panasonic.jp/products/digital.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_avc_o.gif" width="380" height="215" alt="�f�W�^���EAVC�ꗗ�y�[�W�͂�������N���b�N"></a></dt>
+							<dd class="panel_lnk">
+								<ul class="l">
+									<li><a href="viera/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_viera.gif" width="167" height="15" alt="�v���Y�}/�t���e���r"></a></li>
+									<li><a href="diga/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_diga.gif" width="167" height="15" alt="�u���[���C/DVD���R�[�_�["></a></li>
+									<li><a href="bdplayer/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_dvd.gif" width="167" height="15" alt="�u���[���C/DVD�v���[���["></a></li>
+									<li><a href="theater/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_theater.gif" width="167" height="15" alt="���b�N�V�A�^�["></a></li>
+									<li><a href="dc/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_dc.gif" width="167" height="15" alt="�f�W�^���J����"></a></li>
+									<li><a href="dvc/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_dvc.gif" width="167" height="15" alt="�f�W�^���r�f�I�J����"></a></li>
+									<li><a href="portableav/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_viera-1.gif" width="167" height="15" alt="�|�[�^�u���e���r"></a></li>
+									<li><a href="dmvc/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_dmvc.gif" width="167" height="15" alt="�f�W�^�����[�r�[�J����"></a></li>
+								</ul>
+								<ul>
+									<li><a href="headphone/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_headphone.gif" width="167" height="15" alt="�w�b�h�z��/�C���T�C�h�z��"></a></li>
+									<li><a href="phone/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_phone.gif" width="167" height="15" alt="�d�b�@"></a></li>
+									<li><a href="fax/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_fax.gif" width="167" height="15" alt="�t�@�N�X"></a></li>
+									<li><a href="door/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_door.gif" width="167" height="15" alt="�e���r�h�A�z��"></a></li>
+									<li><a href="doormoni/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_doormoni.gif" width="167" height="15" alt="���C�����X�h�A���j�^�["></a></li>
+									<li><a href="sensor/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_sensor.gif" width="167" height="15" alt="�Z���T�[�J����"></a></li>
+									<li><a href="sd/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_sd.gif" width="167" height="15" alt="SD�������[�J�[�h"></a></li>
+									<li><a href="media/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_media.gif" width="167" height="15" alt="BD/DVD�f�B�X�N/�e�[�v"></a></li>
+								</ul>
+							</dd>
+						</dl>
+					</div>
+				</div>
+				<div id="ptop_panel_ha" class="panel_base">
+					<div class="panel_waku"><span></span></div>
+					<div class="ptop_panel_ttl"><a href="https://web.archive.org/web/20130209123505/http://panasonic.jp/products/appliance.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_ttl_ha.gif" alt="�����Ɠd" width="73" height="19"></a></div>
+					<div class="ptop_panel_o">
+						<dl>
+							<dt class="mover"><a href="https://web.archive.org/web/20130209123505/http://panasonic.jp/products/appliance.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_ha_o.gif" width="380" height="215" alt="�����Ɠd�ꗗ�y�[�W�͂�������N���b�N"></a></dt>
+							<dd class="panel_lnk">
+								<ul class="l">
+									<li><a href="reizo/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_reizo.gif" width="167" height="15" alt="�①��"></a></li>
+									<li><a href="range/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_range.gif" width="167" height="15" alt="�����W"></a></li>
+									<li><a href="suihan/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_suihan.gif" width="167" height="15" alt="�W���[���ъ�"></a></li>
+									<li><a href="ih/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_ih.gif" width="167" height="15" alt="IH������/IH�N�b�L���O�q�[�^�["></a></li>
+									<li><a href="bakery/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_bakery.gif" width="167" height="15" alt="�z�[���x�[�J���["></a></li>
+									<li><a href="aircon/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_aircon.gif" width="167" height="15" alt="�G�A�R��"></a></li>
+									<li><a href="airrich/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_airrich.gif" width="167" height="15" alt="��C����@"></a></li>
+									<li><a href="joshitsu/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_joshitsu.gif" width="167" height="15" alt="������/���������@"></a></li>
+								</ul>
+								<ul>
+									<li><a href="kanki/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_kanki.gif" width="167" height="15" alt="���C/���C�ݔ�"></a></li>
+									<li><a href="toilet/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_toilet.gif" width="167" height="15" alt="�������֍�"></a></li>
+									<li><a href="wash/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_wash.gif" width="167" height="15" alt="����@/�ߗފ����@"></a></li>
+									<li><a href="soji/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_soji.gif" width="167" height="15" alt="�|���@"></a></li>
+									<li><a href="iron/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_iron.gif" width="167" height="15" alt="�A�C����"></a></li>
+									<li><a href="dish/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_dish.gif" width="167" height="15" alt="�H��􂢋@�^�H�튣����"></a></li>
+									<li><a href="danbo/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_danbo.gif" width="167" height="15" alt="�d�C�J�[�y�b�g�^�g�[���"></a></li>
+									<li><a href="everleds/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_led.gif" width="167" height="15" alt="LED�Ɩ�"></a></li>
+								</ul>
+							</dd>
+						</dl>
+					</div>
+				</div>
+				<div id="ptop_panel_beauty" class="panel_base">
+					<div class="panel_waku"><span></span></div>
+					<div class="ptop_panel_ttl"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_ttl_beauty.gif" alt="���e�E���N" width="83" height="19"></div>
+					<div class="ptop_panel_o">
+						<dl>
+							<dt class="mover"><a href="https://web.archive.org/web/20130128032723/http://panasonic.jp/products/wellness.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_beauty_o.gif" width="185" height="215" alt="���e�E���N�ꗗ�y�[�W�͂�������N���b�N"></a></dt>
+							<dd class="panel_lnk">
+								<ul>
+									<li><a href="hair/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_hair.gif" width="167" height="15" alt="�w�A�P�A"></a></li>
+									<li><a href="face/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_face.gif" width="167" height="15" alt="�t�F�C�X�P�A"></a></li>
+									<li><a href="body/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_body.gif" width="167" height="15" alt="�{�f�B�E�t�b�g�P�A"></a></li>
+									<li><a href="teeth/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_teeth.gif" width="167" height="15" alt="�I�[�����P�A"></a></li>
+									<li><a href="shaver/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_shaver.gif" width="167" height="15" alt="�����Y�V�F�[�o�["></a></li>
+									<li><a href="fitness/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_fitness.gif" width="167" height="15" alt="�t�B�b�g�l�X�@��"></a></li>
+									<li><a href="massage/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_massage.gif" width="167" height="15" alt="�}�b�T�[�W�`�F�A"></a></li>
+									<li><a href="alkaline/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_alkaline.gif" width="167" height="15" alt="�A���J���C�I��������/�򐅊�"></a></li>
+								</ul>
+							</dd>
+						</dl>
+					</div>
+				</div>
+				<div id="ptop_panel_sumai" class="panel_base">
+					<div class="panel_waku"><span></span></div>
+					<div class="ptop_panel_ttl"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_ttl_sumai.gif" alt="�Z��ݔ��E����" width="108" height="19"></div>
+					<div class="ptop_panel_o">
+						<dl>
+							<dt class="mover"><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_sumai_o.gif" width="185" height="215" alt="�Z��ݔ��E���ވꗗ�y�[�W�͂�������N���b�N"></a></dt>
+							<dd class="panel_lnk">
+								<ul>
+									<li><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/hems/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_hems.gif" width="167" height="15" alt="HEMS"></a></li>
+									<li><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/solar/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_solar.gif" width="167" height="15" alt="���z�����d�V�X�e��"></a></li>
+									<li><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/lighting/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_lighting.gif" width="167" height="15" alt="�Ɩ����"></a></li>
+									<li><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/kitchen/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_kitchen.gif" width="167" height="15" alt="�V�X�e���L�b�`��"></a></li>
+									<li><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/bathroom/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_bath.gif" width="167" height="15" alt="�o�X���[��"></a></li>
+									<li><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/dressing/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_dressing.gif" width="167" height="15" alt="���ʉ��ϑ�"></a></li>
+									<li><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/toilet/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_sumaitoilet.gif" width="167" height="15" alt="�g�C���ݔ�"></a></li>
+<!--									<li><a href="http://sumai.panasonic.jp/water/"><img src="08ptop/index/parts_100401/ptop_panel_base_lnk_water.gif" width="167" height="15" alt="�����ݔ�"></a></li>
+-->									<li><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/interior/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_interior.gif" width="167" height="15" alt="�����E���["></a></li>
+								</ul>
+							</dd>
+						</dl>
+					</div>
+				</div>
+				<div id="ptop_panel_pc" class="panel_base">
+					<div class="panel_waku"><span></span></div>
+					<div class="ptop_panel_ttl"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_ttl_pc.gif" alt="�p�\�R���E���Ӌ@��" width="130" height="19"></div>
+					<div class="ptop_panel_o">
+						<dl>
+							<dt class="mover"><a href="https://web.archive.org/web/20130128032717/http://panasonic.jp/products/pc.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_pc_o.gif" width="185" height="140" alt="�p�\�R���E���Ӌ@��ꗗ�y�[�W�͂�������N���b�N"></a></dt>
+							<dd class="panel_lnk">
+								<ul>
+									<li><a href="pc/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_pc.gif" width="167" height="15" alt="�p�\�R���l����"></a></li>
+									<li><a href="p3/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_p3.gif" width="167" height="15" alt="�p�\�R�����Ӌ@��"></a></li>
+									<li><a href="p3/plc/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_pcplc.gif" width="167" height="15" alt="PLC�A�_�v�^�["></a></li>
+								</ul>
+							</dd>
+						</dl>
+					</div>
+				</div>
+				<div id="ptop_panel_mob" class="panel_base">
+					<div class="panel_waku"><span></span></div>
+					<div class="ptop_panel_ttl"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_ttl_mob.gif" alt="�g�ѓd�b�E�X�}�[�g�t�H��" width="159" height="19"></div>
+					<div class="ptop_panel_o">
+						<dl>
+							<dt class="mover"><a href="https://web.archive.org/web/20130127063333/http://panasonic.jp/products/mobile.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_mob_o.gif" width="185" height="140" alt="�g�ѓd�b�E�X�}�[�g�t�H���ꗗ�y�[�W�͂�������N���b�N"></a></dt>
+							<dd class="panel_lnk">
+								<ul>
+									<li><a href="mobile/docomo/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_docomo.gif" width="167" height="15" alt="�h�R��"></a></li>
+									<li><a href="mobile/softbank/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_softbank.gif" width="167" height="15" alt="�\�t�g�o���N"></a></li>
+								</ul>
+							</dd>
+						</dl>
+					</div>
+				</div>
+				<div id="ptop_panel_car" class="panel_base">
+					<div class="panel_waku"><span></span></div>
+					<div class="ptop_panel_ttl"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_ttl_car.gif" alt="�J�[�i�r�^�J�[AV" width="120" height="19"></div>
+					<div class="ptop_panel_o">
+						<dl>
+							<dt class="mover"><a href="https://web.archive.org/web/20130209194416/http://panasonic.jp/car/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_car_o.gif" width="185" height="140" alt="�J�[�i�r�^�J�[AV�ꗗ�y�[�W�͂�������N���b�N"></a></dt>
+							<dd class="panel_lnk">
+								<ul>
+									<li><a href="https://web.archive.org/web/20130209072542/http://panasonic.jp/car/lineup/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_car.gif" width="167" height="15" alt="�J�[�i�r"></a></li>
+									<li><a href="https://web.archive.org/web/20130123124106/http://panasonic.jp/car/tabinavi/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_carav.gif" alt="�g���x���i�r" width="167" height="15" border="0"></a></li>
+									<li><a href="https://web.archive.org/web/20130128032501/http://panasonic.jp/car/its/products/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_base_lnk_carcamera.gif" width="167" height="15" alt="DSRC/ETC�ԍڊ�"></a></li>
+								</ul>
+							</dd>
+						</dl>
+					</div>
+				</div>
+			</div>
+			<div id="ptop_panel_etc">
+				<ul>
+					<li class="mover"><a href="https://web.archive.org/web/20130202134526/http://panasonic.biz/healthcare/elderlycare/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_etc5.gif" width="77" height="19" alt="���E����"></a></li>
+					<li class="mover"><a href="cycle/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_etc1.gif" width="52" height="19" alt="���]��"></a></li>
+					<li class="mover"><a href="https://web.archive.org/web/20130202134526/http://panasonic.biz/healthcare/phchi/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_etc2.gif" width="54" height="19" alt="�⒮��"></a></li>
+					<li class="mover"><a href="battery/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_etc3.gif" width="89" height="19" alt="�d�r�E�[�d��"></a></li>
+					<li class="mover"><a href="https://web.archive.org/web/20130202134526/http://panasonic.biz/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_panel_etc4.gif" width="126" height="19" alt="�@�l�����Ɩ��@��"></a></li>
+				</ul>
+			</div>
+		</div>
+		<!-- /end PANEL -->
+	</div>
+	<div class="ptop_R">
+
+<!-- banner -->
+			<div id="panel"><a href="kaden2012/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/img/kaden2012.jpg" alt="���{�̉Ɠd�BPanasonic" width="789" height="130" border="0"></a></div>
+<!-- /banner -->
+            
+		<div id="ptop_mainarea_container">
+
+
+
+<!-- ���R�����h�\�� -->
+  <script type="text/javascript" src="https://web.archive.org/web/20130202134526js_/http://img.club.panasonic.jp/recommend_panasonic-all/js/sna.js"></script>
+   
+  <script type="text/javascript">
+   recoConstructer({
+   k:"RXAErjcN0hE1Z",
+   recommend:{
+    rule:{target_id:"below_reco",tmpl:1,charset:"Shift_JIS"}
+   }
+   });
+  </script>
+  
+  <div id="below_reco"></div>
+  
+<!-- /���R�����h�\�� -->
+<!-- util_lnk -->
+	<div id="util_lnk">
+		<ul>
+			<li><a href="https://web.archive.org/web/20130123124247/http://panasonic.jp/sns.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/util_lnk_btn1.gif" width="240" height="84" alt="�\�[�V�������f�B�A"></a></li>
+			<li><a href="https://web.archive.org/web/20130202134526/http://www.club.panasonic.jp/repair/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/util_lnk_btn2.gif" width="240" height="84" alt="�֗��ȏC���T�[�r�X"></a></li>
+			<li class="last-child"><a href="campaign/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/util_lnk_btn3.gif" width="240" height="84" alt="�L�����y�[�����"></a></li>
+		</ul>
+	</div>
+<!-- /util_lnk -->
+
+  <div id="news">
+				<div class="ttl">
+					<h2><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_news_ttl.gif" width="90" height="17" alt="�V�����"></h2>
+
+					<ul>
+						<li id="news_rss" class="mover"><a href="https://web.archive.org/web/20130115045821/http://panasonic.jp/whatsnew.xml"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/news_iconrss.gif" alt="RSS" width="38" height="14"></a></li>
+					</ul>
+					<ul class="ectlnk">
+						<!--<li><a href="campaign/">�L�����y�[���ꗗ</a></li>-->
+						<li><a href="https://web.archive.org/web/20130123123602/http://panasonic.jp/schedule.html">�V���i�ꗗ</a></li>
+						<li><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/corp/topics.html">�j���[�X�����[�X</a></li>
+					</ul>
+				</div>
+                    <!--<div id="whatnew_notice">�y���m�点�z</div>-->
+              
+	<div id="news_contents"><!-- �V����� --></div>
+				<div id="news_backnum"><a href="https://web.archive.org/web/20130123104848/http://panasonic.jp/backnum.html">�V�����o�b�N�i���o�[</a></div>
+			</div>
+			<div id="info">
+				<div class="ttl">
+					<h2><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_info_ttl.gif" width="90" height="17" alt="���m�点"></h2>
+					<ul class="ectlnk">
+						<li><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/ap/info/important/heating/index.htm" class="fffan">1985�N����1992�N���̃i�V���i��FF���Ζ��g�[�@��T���Ă��܂�</a></li>
+						<li><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/info/information.html#area2">2009�N�ȑO�̂��m�点�͂����炩��</a></li>
+					</ul>
+				</div>
+				<div id="info_contents"><!-- ���m�点 --></div>
+				<div class="opt_link">
+					<ul>
+						<li class="l mover"><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/info/information.html#area3"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_info_lnk1.gif" alt="" width="356" height="25"></a></li>
+						<li class="r mover"><a href="https://web.archive.org/web/20130202134526/http://panasonic-denko.co.jp/corp/oshirase/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_info_lnk2.gif" alt="�����d�H�i���F�p�i�\�j�b�N�j�́u���q�l�ւ̑�؂Ȃ��m�点�v�͂�����" width="356" height="25"></a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="block">
+				<div id="pickup" class="l">
+					<div class="ttl">
+						<h2><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_pickup_ttl.jpg" width="212" height="17" alt="�s�b�N�A�b�v�R���e���c"></h2>
+					</div>
+					<div id="pickup_contents">
+						<!--<div class="imgArea"><a href="#"><img src="08ptop/index/img/pickup_img.jpg" width="150" height="90" alt=""></a></div>
+						<dl>
+							<dt><a href="#">����T�C�Y������</a></dt>
+							<dd>�u����T�C�Y�������v�����ɐX���痢����I�����f�B�Y�j�[�����h(R)�ŐV���[�r�[���̌��ł���u1���������v���W���I</dd>
+						</dl>-->
+					</div>
+				</div>
+				<div id="life" class="r">
+					<div class="ttl mover">
+						<h2><a href="life/index.html"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/08ptop/index/parts_100401/ptop_life_ttl.gif" width="351" height="17" alt="���炵���y���ޏ��@�����Ƃ��������y������"></a></h2>
+					</div>
+					<div id="life_contents">
+						<!--<div class="imgArea"><a href="#"><img src="08ptop/index/img/pickup_img.jpg" width="150" height="90" alt=""></a></div>
+						<dl>
+							<dt><a href="#">����T�C�Y������</a></dt>
+							<dd>�u����T�C�Y�������v�����ɐX���痢����I�����f�B�Y�j�[�����h(R)�ŐV���[�r�[���̌��ł���u1���������v���W���I</dd>
+						</dl>-->
+					</div>
+				</div>
+			</div>
+            
+            <!--<div class="block">
+            <ul class="block_cap">
+            <li>�����g�p�ɂ́A�u���[�h�o���h���[�^�[����сA�ʔ��̖����Q�[�g�E�F�C(CF-TC7)�A�����A�_�v�^�[(CF-TA9)���K�v�ł��B</li>
+            <li>����p�̃A�v���P�[�V�����̃_�E�����[�h���K�v�ł��B</li>
+            <li>���A�v���P�[�V�����̃_�E�����[�h����сA�T�[�o�ւ̃A�N�Z�X�ɂ́A�ʓr�ʐM��p��������܂��B</li>
+            </ul></div>-->
+		</div><!-- end mainarea -->
+	</div>
+</div>
+<!--<div id="maincontents_bot">
+</div>-->
+</div>
+</div>
+<div id="ptop_contents_bot-container">
+	<div id="ptop_contents_bot">
+		<div id="bottom_note"><!-- ���� -->
+			<!--<dl>
+				<dt>��</dt>
+				<dd>�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g</dd>
+				<dt>��</dt>
+				<dd>�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g�e�L�X�g</dd>
+			</dl>-->
+		</div>
+		<div id="footer_contents_link">
+			<div class="footer_contents_link-clm">
+				<dl>
+					<dt><a href="https://web.archive.org/web/20130127064852/http://panasonic.jp/products/digital.html">�f�W�^���EAVC</a></dt>
+					<dd><a href="viera/index.html">�e���r</a></dd>
+					<dd><a href="diga/index.html">�u���[���C/DVD���R�[�_�[</a></dd>
+					<dd><a href="dc/index.html">�f�W�^���J����</a></dd>
+					<dd><a href="dmvc/index.html">�f�W�^�����[�r�[�J����</a></dd>
+					<dd><a href="dvc/index.html">�r�f�I�J����</a></dd>
+					<dd><a href="audio/index.html">�I�[�f�B�I</a></dd>
+					<dd><a href="phone/index.html">�d�b�@</a></dd>
+					<dd><a href="fax/index.html">�t�@�N�X</a></dd>
+					<dd><a href="door/index.html">�e���r�h�A�z��</a></dd>
+					<dd><a href="sensor/index.html">�Z���T�[�J����</a></dd>
+					<dd><a href="sd/index.html">SD�������[�J�[�h</a></dd>
+				</dl>
+			</div>
+			<div class="footer_contents_link-clm">
+				<dl>
+					<dt><a href="https://web.archive.org/web/20130128032717/http://panasonic.jp/products/pc.html">�p�\�R���E���Ӌ@��</a></dt>
+					<dd><a href="pc/index.html">�p�\�R���l����</a></dd>
+					<dd><a href="p3/index.html">�p�\�R�����Ӌ@��</a></dd>
+				</dl>
+				<dl>
+					<dt><a href="https://web.archive.org/web/20130127063333/http://panasonic.jp/products/mobile.html">�g�ѓd�b�E�X�}�[�g�t�H��</a></dt>
+					<dd><a href="mobile/smartphone/index.html">�X�}�[�g�t�H��</a></dd>
+					<dd><a href="mobile/docomo/index.html">�h�R���g�ѓd�b</a></dd>
+					<dd><a href="mobile/softbank/index.html">�\�t�g�o���N�g�ѓd�b</a></dd>
+				</dl>
+			</div>
+			<div class="footer_contents_link-clm">
+				<dl>
+					<dt><a href="https://web.archive.org/web/20130123115759/http://panasonic.jp/products/car.html">�J�[�i�r�^�J�[AV</a></dt>
+					<dd><a href="car/navi/products/index.html">�J�[�i�r</a></dd>
+					<dd><a href="https://web.archive.org/web/20130126211434/http://panasonic.jp/car/navi/products/index6.html">�ԍڗp�u���[���C�f�B�X�N�v���[��</a></dd>
+					<dd><a href="https://web.archive.org/web/20130123135925/http://panasonic.jp/car/navi/products/index4.html">�J�[�J����</a></dd>
+					<dd><a href="car/its/products/index.html">DSRC/ETC�ԍڊ�</a></dd>
+					<dd><a href="https://web.archive.org/web/20130209162310/http://panasonic.jp/car/av/products/tv.html">�J�[�n�f�W�`���[�i�[</a></dd>
+					<dd><a href="https://web.archive.org/web/20130123113546/http://panasonic.jp/car/battery/products/battery.html">�J�[�o�b�e���[</a></dd>
+				</dl>
+			</div>
+			<div class="footer_contents_link-clm">
+				<dl>
+					<dt><a href="https://web.archive.org/web/20130209123505/http://panasonic.jp/products/appliance.html">�����Ɠd</a></dt>
+					<dd><a href="reizo/index.html">�①��</a></dd>
+					<dd><a href="range/index.html">�����W</a></dd>
+					<dd><a href="suihan/index.html">�W���[���ъ�</a></dd>
+					<dd><a href="aircon/index.html">�G�A�R��</a></dd>
+					<dd><a href="airrich/index.html">��C����@</a></dd>
+					<dd><a href="joshitsu/index.html">�����@/���������@</a></dd>
+					<dd><a href="kashitsu/index.html">�����@</a></dd>
+					<dd><a href="kanki/index.html">���C/���C�ݔ�</a></dd>
+					<dd><a href="toilet/index.html">�������֍�</a></dd>
+					<dd><a href="wash/index.html">����@/�ߗފ����@</a></dd>
+					<dd><a href="soji/index.html">�|���@</a></dd>
+					<dd><a href="garbage/index.html">�����ݏ����@</a></dd>
+					<dd><a href="battery/index.html">���d�r</a></dd>
+				</dl>
+			</div>
+			<div class="footer_contents_link-clm">
+				<dl>
+					<dt><a href="https://web.archive.org/web/20130128032723/http://panasonic.jp/products/wellness.html">���e�E���N</a></dt>
+					<dd><a href="hair/index.html">�w�A�P�A</a></dd>
+					<dd><a href="face/index.html">�t�F�C�X�P�A</a></dd>
+					<dd><a href="body/index.html">�{�f�B�E�t�b�g�P�A</a></dd>
+					<dd><a href="teeth/index.html">�I�[�����P�A</a></dd>
+					<dd><a href="shaver/index.html">�����Y�V�F�[�o�[</a></dd>
+					<dd><a href="fitness/index.html">�t�B�b�g�l�X�@��</a></dd>
+					<dd><a href="massage/index.html">�}�b�T�[�W�`�F�A</a></dd>
+					<dd><a href="alkaline/index.html">�A���J���C�I��������/�򐅊�</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/phi/">�⒮��</a></dd>
+				</dl>
+			</div>
+			<div class="footer_contents_link-clm">
+				<dl>
+					<dt><a href="https://web.archive.org/web/20130123122953/http://panasonic.jp/products/sumai.html">�Z��ݔ��E����</a></dt>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/kitchen/">�V�X�e���L�b�`��</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/bathroom/">�o�X���[��</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/dressing/">���ʉ��ϑ�</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/toilet/">�g�C���ݔ�</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/water/">�����ݔ�</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/air/">�󒲊��C</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/interior/">�����E���[</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/outside/">�O�܂��E�\����</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/lighting/">�Ɩ����</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/wiring/">�z���E���</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/elevator/">�z�[���G���x�[�^�[</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/solar_battery/">���z�����d</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://sumai.panasonic.jp/security/">�h�ƁE�h��</a></dd>
+				</dl>
+			</div>
+			<div class="footer_contents_link-clm">
+				<dl>
+					<dt><a href="https://web.archive.org/web/20130127071749/http://panasonic.jp/products.html#etc">���̑�</a></dt>
+					<dd><a href="cycle/index.html">���]��</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/phc/products/home.html">���E����</a></dd>
+					<dd><a href="fishing/index.html">�ޗp�i</a></dd>
+					<dd><a href="garden/index.html">���|�p�i</a></dd>
+					<dd><a href="pet/index.html">�y�b�g�p�i</a></dd>
+					<dd><a href="bungu/index.html">����p�i</a></dd>
+					<dd><a href="clock/index.html">���v/�^�C�}�[</a></dd>
+					<dd><a href="powertool/index.html">�v�������d���H��</a></dd>
+					<dd><a href="appliance/index.html">�Ɩ��p�@��</a></dd>
+					<dd><a href="megaphone/index.html">���K�z��</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://ctlg.panasonic.jp/product/lineup.do?pg=03&amp;scd=00002852">�����R��</a></dd>
+					<dd><a href="https://web.archive.org/web/20130202134526/http://ctlg.panasonic.jp/product/lineup.do?pg=03&amp;scd=00000132">�N���[�i�[</a></dd>
+					<dd><a href="tourist/index.html">�C�O�d�l�i</a></dd>
+				</dl>
+			</div>
+			<div class="footer_contents_link-other">
+				<ul>
+					<li><a href="https://web.archive.org/web/20130202134526/http://panasonic.biz/">�@�l�̂��q�l</a></li>
+					<li><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/eco/">�p�i�\�j�b�N�̊�����</a></li>
+					<li><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/company/">�p�i�\�j�b�N��Ə��</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+<!--[FOOTER BLOCK]-->
+<div id="ga2012_footer">
+	<div class="ga2012_footer_line">
+	<p class="ga2012_skipLink">��������T�C�g���ł��B</p>
+	<ul class="footerNav">
+	<li class="first-child"><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/index3.html">�p�i�\�j�b�N�E�z�[��</a></li>
+	<li><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/info/sitemap.html">�T�C�g�}�b�v</a></li>
+	<li><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/info/policy.html">�T�C�g�̂����p�ɂ�������</a></li>
+	<li><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/info/privacy/">�l���ی���j</a></li>
+	<!-- end .footerNav --></ul>
+	<p class="ecoIdeas"><a href="https://web.archive.org/web/20130202134526/http://panasonic.co.jp/eco/ecoideas/"><img src="https://web.archive.org/web/20130202134526im_/http://panasonic.jp/common/images/ga2012_eco_ideas.gif" width="250" height="33" alt="eco ideas"></a></p>
+	<address class="ga2012_copyright"><p id="ga2012_copyright_year">&copy; Panasonic Corporation</p></address>
+	<p class="ga2012_skipLink"><a href="#ga2012_header">�y�[�W�̐擪��</a></p>
+    </div>
+<!-- end #ga2012_footer --></div>
+<!--/[FOOTER BLOCK]-->
+<script src="https://web.archive.org/web/20130202134526js_/http://panasonic.co.jp/common/mf/js/suggest_ext.js#unitid=ja_all" type="text/javascript" charset="UTF-8"></script>
+
+<!--/[FOOTER BLOCK]-->
+
+<!--<script type="text/javascript" src="/common/new-company-name_campaign/main.js"></script>-->
+
+<!--[WEB ACCESSIBILITY VALIDATE STAMP]-->
+<!-- UDAT for Panasonic Ver.1.5-UDATE-00010 Level-0 on 2009/06/17 17:21:55 1ea9278bc7951c46e5daa6ac132d4f61 -->
+<!--/[WEB ACCESSIBILITY VALIDATE STAMP]-->
+
+<!--
+playback timings (ms):
+  captures_list: 1.301
+  exclusion.robots: 0.056
+  exclusion.robots.policy: 0.046
+  esindex: 0.007
+  cdx.remote: 87.452
+  LoadShardBlock: 492.458 (6)
+  PetaboxLoader3.datanode: 394.462 (7)
+  PetaboxLoader3.resolve: 249.471 (2)
+  load_resource: 185.459
+-->            </div>
+
+            <!--
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam condimentum dolor suscipit elit dignissim aliquam. Duis at lacus non ex facilisis mattis. Donec rhoncus aliquam dignissim. Nunc dapibus tristique commodo. Ut eget odio vitae orci placerat viverra. In accumsan diam ligula, ac imperdiet mi malesuada id. Mauris at posuere turpis. Donec quis nunc consequat, semper nulla vel, finibus elit. Integer consectetur, urna vitae ornare vestibulum, tellus augue commodo lacus, at finibus dolor ex quis sem.
+
+            <p>Pellentesque vitae auctor odio. Vivamus efficitur dignissim feugiat. Nulla id placerat risus. Mauris luctus turpis non enim pellentesque, nec finibus turpis venenatis. Mauris gravida suscipit facilisis. Sed risus mi, lobortis id arcu vitae, tempor imperdiet felis. Nullam gravida pulvinar fringilla. In tellus risus, finibus quis justo et, vestibulum pretium leo. Vivamus consectetur in nisl ut interdum. Praesent luctus lacus arcu, nec blandit metus aliquet at. Sed dignissim eu felis vitae cursus. Sed ac commodo tellus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam porta sapien at libero dictum, ac blandit metus facilisis.
+
+            <p>Nulla sit amet nibh ex. Donec tincidunt metus at lacinia lacinia. Sed commodo auctor est, sit amet pharetra est pharetra at. Vivamus in iaculis magna. Etiam suscipit vitae enim vel consectetur. Duis aliquam erat velit, a facilisis lectus commodo in. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+
+            <p>Nullam nibh lorem, varius non turpis non, congue venenatis velit. Nulla imperdiet dapibus condimentum. Sed placerat, ante at sollicitudin malesuada, libero ex eleifend odio, id aliquam orci ipsum in tellus. Quisque viverra efficitur rhoncus. Mauris eleifend ligula id vulputate varius. Donec euismod odio quis libero imperdiet interdum. Suspendisse suscipit mauris ac ultricies accumsan. Sed vulputate facilisis neque at commodo. Nullam aliquam dui non faucibus luctus. Nullam malesuada augue arcu, vitae molestie ligula suscipit et.
+
+            <p>Vivamus et dolor a nunc sollicitudin auctor in et orci. In id purus vitae est vehicula faucibus. Pellentesque ultrices ipsum a erat posuere, eu bibendum quam vehicula. Sed ac urna congue, imperdiet nisl nec, faucibus mi. Nulla fringilla accumsan urna vel laoreet. Donec gravida nisl ut velit rutrum cursus. Vivamus ullamcorper id nisl sed commodo. Maecenas laoreet faucibus varius. Pellentesque lobortis elit at libero pretium, ac suscipit nulla condimentum. Nam pellentesque mauris non mattis congue. Cras vitae luctus metus. Quisque efficitur eu nunc pretium placerat.
+
+            <p>Aenean rhoncus euismod urna, dapibus maximus erat gravida et. Phasellus commodo tellus sit amet lobortis bibendum. Pellentesque elementum metus nec metus pharetra, sit amet feugiat mi elementum. Fusce hendrerit varius laoreet. Aenean sit amet tempus nulla. Phasellus mauris augue, ullamcorper sed neque eget, eleifend hendrerit velit. Phasellus tempus placerat felis, vitae facilisis nunc interdum et. Nunc venenatis lacus augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Curabitur ac massa elit. Integer a libero sodales, blandit sem sit amet, tincidunt mi. Aliquam semper, sapien et pulvinar pulvinar, sapien sem auctor mi, eget viverra mi magna eget neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus in consequat diam.
+
+            <p>Sed ornare rutrum quam. Maecenas eget libero ut lectus consectetur semper. Sed dignissim urna nisi, a condimentum leo congue a. Aenean dictum libero sed imperdiet elementum. Duis quis sagittis ligula, quis dapibus nulla. Fusce et dui nec tortor accumsan lobortis eu nec metus. Fusce nec sem eu leo ultrices porttitor. Nullam at nisl in neque iaculis maximus sit amet nec sapien. Nam vitae mattis diam. Morbi ut purus interdum, semper enim sed, fermentum lectus. Mauris vitae nisl at risus euismod accumsan. Mauris nec iaculis lacus. Phasellus in enim at eros eleifend pellentesque. Phasellus nulla odio, tempor sit amet vulputate a, pharetra finibus erat.
+
+            <p>Nullam venenatis sollicitudin odio, nec pellentesque mi fermentum in. Etiam tempus rhoncus felis, et venenatis erat volutpat sed. Proin congue, massa vel faucibus pulvinar, sapien risus egestas sapien, ac fringilla justo mi id justo. Quisque condimentum pharetra est, at luctus dui molestie nec. Aliquam volutpat mi ut nisi fermentum, sit amet sagittis arcu posuere. Suspendisse potenti. Mauris ultrices est non eros faucibus varius. Ut velit nisl, semper sed eros ac, vulputate placerat justo. Aenean a libero sit amet velit tempus condimentum vel sed purus.
+
+            <p>Cras nec diam fermentum, scelerisque diam sit amet, scelerisque tellus. In eget ipsum et arcu porttitor laoreet. Nullam at ultricies nulla, eget hendrerit dui. Maecenas efficitur metus ac orci ornare ornare. Maecenas et rhoncus neque, eu accumsan massa. Ut dignissim, libero in volutpat finibus, elit velit ultrices est, ut viverra risus turpis quis ante. Suspendisse massa sapien, porttitor sed tortor vitae, dapibus hendrerit diam. Donec eu tempus tortor. Donec feugiat nisl eget tincidunt congue. Curabitur nec ligula nisl. Etiam finibus odio vel felis vulputate, viverra semper dui pretium. Duis id molestie purus. Pellentesque nunc turpis, elementum ac dui quis, porta luctus tellus. Donec commodo vestibulum ex at convallis.
+
+            <p>Nam ut ultrices nulla. Proin tempor tortor et libero venenatis, sed suscipit nisi dictum. Maecenas fringilla, tellus efficitur porta lacinia, ante velit varius lacus, at suscipit neque neque ac lacus. Integer vitae maximus tortor. Morbi in purus gravida, volutpat elit ac, euismod leo. Sed facilisis enim vitae rutrum pretium. Nunc suscipit placerat sem, non placerat velit bibendum tristique.
+
+            <p>Vivamus egestas tincidunt lacus, sed gravida magna rhoncus nec. Mauris aliquet, ex vel elementum vehicula, massa libero facilisis ex, gravida pulvinar libero ipsum vitae mauris. Aenean arcu sem, sollicitudin et posuere laoreet, posuere non ex. Nulla vulputate eu nisl et fermentum. Nunc gravida laoreet sollicitudin. Donec placerat dictum vestibulum. Aenean tellus turpis, facilisis in dignissim eget, interdum ac massa. Nulla lacinia est non nisi convallis, pulvinar fermentum tortor aliquet. Cras in accumsan neque. In auctor diam quis nisl tincidunt tincidunt. Vivamus egestas efficitur leo et malesuada. Nunc a nisl interdum, placerat purus non, tempor urna. Aliquam a enim vitae libero lacinia mollis.
+
+            <p>Praesent consectetur ipsum et leo congue, eu venenatis orci finibus. Sed in consequat mi. Nam est quam, auctor molestie convallis id, suscipit ac est. Sed ultrices justo at volutpat egestas. Ut sit amet risus non neque rhoncus ullamcorper et quis eros. Mauris sed bibendum neque. Praesent non tellus aliquet, hendrerit orci vel, sodales mauris. Quisque a ante quis nisi venenatis posuere. Ut facilisis eleifend gravida. Quisque id elementum enim. Aliquam sit amet lectus dictum, commodo orci vel, ornare dolor.
+
+            <p>Aliquam tempus malesuada viverra. Duis auctor tincidunt hendrerit. Cras tristique nulla vitae dui viverra lobortis. Donec ac consequat elit. Suspendisse mollis condimentum commodo. Donec varius, diam in gravida tristique, nibh est tristique quam, vitae semper arcu magna eget turpis. Aenean at tellus nulla. Morbi arcu ante, interdum imperdiet ornare iaculis, commodo ac nibh. Morbi gravida condimentum lorem, id pretium ligula lobortis in. In sit amet lacinia nisl, nec tristique odio. Maecenas nulla felis, placerat ut felis eget, porta efficitur tellus. Phasellus in condimentum dolor, eu dictum urna. Vestibulum molestie, tellus vitae posuere tincidunt, justo turpis luctus enim, quis faucibus eros ipsum sed dui. Nunc accumsan hendrerit erat, id dictum lorem volutpat in. Quisque viverra mauris nec velit laoreet dapibus. Nulla facilisi.
+
+            <p>Nullam consequat mattis eros id semper. In at nibh nunc. Phasellus aliquet in elit sit amet aliquet. Mauris lacinia tellus non mattis porta. Fusce mauris justo, fringilla nec convallis id, ornare sit amet sapien. Integer malesuada nisi quis eros vehicula volutpat. Nullam tincidunt dapibus consequat. Duis sodales massa magna, eu mollis orci aliquet eget. Praesent tristique arcu rutrum lorem sodales finibus et a arcu.
+
+            <p>Cras eu lectus non felis porttitor imperdiet in a dolor. Pellentesque sit amet porta quam. Suspendisse ultrices velit ut lectus mollis fermentum. Quisque odio enim, tincidunt nec efficitur vitae, euismod nec ex. In pellentesque orci a ante dapibus hendrerit. In non lorem et ligula pharetra molestie non malesuada dolor. Nullam vel tempor ante. Praesent sit amet odio turpis. Sed fermentum lacinia ligula vel finibus. Nam tincidunt nec risus in rutrum. Fusce eleifend posuere ante, nec consequat neque mattis at. Donec lacinia dolor viverra pharetra pellentesque. Nam mollis dictum hendrerit. Nullam ullamcorper et sem sit amet venenatis.
+
+            <p>Aenean ipsum enim, feugiat sit amet nisl a, rhoncus efficitur ante. In sed ex sed lectus viverra ultrices ut sit amet odio. Integer quis diam scelerisque, luctus libero sit amet, posuere nunc. Sed interdum purus porttitor, sollicitudin tortor id, ultricies diam. Nulla facilisi. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam tincidunt sodales lacus. Suspendisse urna justo, semper in orci at, facilisis volutpat nibh. Nunc semper ipsum vitae turpis molestie, a semper magna viverra.
+
+            <p>Integer convallis urna sem, quis blandit turpis cursus id. Suspendisse at congue turpis, eu mollis enim. Maecenas quis tempus ipsum. Curabitur pellentesque tortor eu lacus dictum mattis. Nullam euismod sapien vel sem dignissim, nec rutrum ligula cursus. Morbi quis nisl nec arcu fermentum dapibus. Fusce euismod lobortis dui, sit amet viverra nisi sagittis a. Phasellus tristique augue vitae metus porttitor, vel rutrum lorem molestie. Etiam efficitur nisl enim, vitae malesuada lorem tristique semper. Duis auctor faucibus enim, ut efficitur justo viverra vitae. Maecenas cursus sapien lobortis rhoncus suscipit. Mauris mollis semper ligula, ac aliquet diam tincidunt quis. Quisque eu auctor arcu, vitae sodales leo.
+
+            <p>Integer enim mauris, faucibus nec metus at, sodales sagittis metus. Nam non arcu ultricies velit rutrum imperdiet sit amet vitae nunc. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam aliquet varius augue vel dictum. Nullam dignissim purus vel eros pharetra, vitae elementum enim accumsan. Nulla accumsan in nisl aliquet iaculis. Aenean sed faucibus urna.
+
+            <p>Aenean dignissim interdum pellentesque. Duis eget nunc consectetur, commodo arcu a, ultricies mi. In ligula neque, commodo eget sodales ac, pharetra et sem. Donec imperdiet nunc eget arcu laoreet, a vestibulum enim pharetra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Quisque eget rhoncus massa. Quisque semper ut est et consectetur. Integer finibus neque at malesuada sagittis. Vivamus magna nisi, viverra a dolor in, congue egestas lorem. Ut eget nibh congue, maximus nunc id, imperdiet turpis. Integer eget metus velit.
+
+            <p>Pellentesque iaculis arcu eget aliquam lobortis. Pellentesque nec sem vel augue posuere rhoncus ac non arcu. Aliquam mollis imperdiet bibendum. In ornare urna ut nunc mollis, at gravida nunc lobortis. Sed euismod dapibus enim quis laoreet. Mauris sed turpis scelerisque, condimentum libero vel, tincidunt magna. Vivamus eu odio orci. Vivamus iaculis ac justo ut malesuada. In hac habitasse platea dictumst. Nam vel facilisis leo. Sed interdum eu augue sit amet ultrices.
+
+            <p>Nunc ornare aliquet elit, non lobortis mi ultricies ut. Sed facilisis, urna ac faucibus accumsan, quam nulla accumsan dui, pharetra efficitur arcu purus non urna. In nec accumsan dolor, vitae feugiat ante. Etiam vel ultrices mauris. Vivamus pellentesque volutpat est a elementum. Donec sed ex diam. Integer id quam quis leo lobortis molestie. Nunc faucibus justo turpis, eget pulvinar mi eleifend quis. Aliquam id odio justo. Quisque sit amet scelerisque diam. Nullam venenatis elit feugiat tortor vehicula, vitae gravida lectus elementum. Maecenas viverra urna ut elit scelerisque, et tristique elit lacinia.
+
+            <p>Interdum et malesuada fames ac ante ipsum primis in faucibus. Donec fermentum, purus vitae cursus lobortis, est est cursus turpis, ut placerat dolor mi non nisl. Suspendisse dignissim aliquet neque at maximus. Curabitur fringilla augue eget libero sollicitudin varius. Aenean eget rutrum nisl. Vestibulum et enim viverra, venenatis lectus et, vehicula elit. Ut dictum felis turpis. Morbi cursus tortor mauris, quis dictum metus finibus vitae. Donec finibus malesuada lorem et accumsan. Suspendisse id dictum velit, et viverra sem. Nunc fermentum, justo tristique tincidunt aliquam, mi arcu suscipit sem, et porttitor lacus libero a nisi. Vivamus elementum libero eget arcu scelerisque interdum. Vivamus sed neque sit amet quam sodales maximus sed nec mauris. Morbi scelerisque lectus consectetur tristique ultrices.
+
+            <p>Aliquam in libero sed nibh rutrum rhoncus id sed tellus. Nam sodales dictum dolor, in fringilla quam aliquam id. Aliquam dapibus rutrum velit, id commodo dolor condimentum et. In hac habitasse platea dictumst. Maecenas non orci mollis tellus lacinia egestas posuere eu erat. Maecenas risus eros, condimentum at massa sit amet, feugiat gravida orci. Fusce ut semper ligula. Sed sodales vulputate aliquam. Morbi elementum libero eu erat imperdiet, ac rhoncus dolor commodo. Curabitur lobortis ex purus, ut imperdiet ipsum ullamcorper ac. Aliquam et porttitor arcu. Donec finibus facilisis mi, eget faucibus ipsum facilisis ac. Sed at finibus enim.
+
+            <p>Pellentesque dui risus, congue in orci eu, sollicitudin volutpat urna. Mauris vel pharetra nisi, ut pharetra nisi. Maecenas purus augue, venenatis sed ex non, dignissim varius dui. Duis varius odio vel nisi suscipit sollicitudin. Ut feugiat mi dolor, vel scelerisque mi rhoncus non. Mauris ac eleifend massa. Donec accumsan consequat quam ac suscipit. Aliquam viverra lacus et felis pellentesque lobortis. Curabitur sed laoreet magna. Mauris commodo arcu non risus tincidunt tempus. In sit amet tellus nec sapien tempor dapibus. Maecenas ac pretium augue, nec malesuada eros. Fusce viverra quis diam eget sagittis. Aliquam vel mollis neque, eu lacinia urna.
+
+            <p>Morbi non mauris scelerisque, gravida ante scelerisque, ultrices diam. Sed tristique, lacus id dapibus cursus, dolor felis interdum libero, sed dapibus libero dui ut massa. Aliquam vel enim eget metus volutpat congue. Nullam tellus tortor, varius nec dolor at, feugiat mollis sem. Vestibulum sagittis in nisi non venenatis. In vel tincidunt justo. Curabitur pellentesque nibh et odio pharetra rutrum. Maecenas fringilla egestas sapien, sed faucibus leo laoreet et. Suspendisse a est sed nulla iaculis pellentesque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam euismod auctor scelerisque. Duis tincidunt non nunc a blandit. Curabitur consequat orci ut placerat dictum. Curabitur tincidunt eros turpis, sed tincidunt neque sagittis eu. Vivamus congue ante id pellentesque convallis. Quisque hendrerit in nisi non molestie.
+
+            <p>Vestibulum finibus dui et ante consequat mollis. Nunc non felis eu libero efficitur lobortis. Pellentesque efficitur mauris et viverra finibus. Sed risus ante, congue et cursus sed, euismod sit amet dolor. Mauris sed est ultricies, auctor magna non, dapibus magna. Sed metus turpis, maximus sed ligula et, sagittis varius lacus. Praesent tincidunt enim ut diam vehicula tristique. Curabitur laoreet ipsum risus, id consequat nulla posuere et. Curabitur vehicula sit amet felis facilisis convallis. Sed id orci pretium, mollis mi vel, vestibulum metus. Integer elit libero, pulvinar eget neque nec, semper efficitur mi. Cras sapien est, tempus non laoreet eu, vulputate eu risus. Mauris vel volutpat urna. Integer accumsan placerat nunc sed ullamcorper. Vestibulum sit amet est a metus rutrum suscipit in non diam. Praesent sapien tellus, feugiat et ornare vel, ullamcorper at odio.
+
+            <p>Etiam sit amet mattis metus. Aenean vestibulum urna at urna malesuada tempor. Praesent quis lobortis purus. Phasellus dui justo, luctus a libero sed, interdum auctor dui. Etiam et pharetra turpis. Sed vel velit dapibus, commodo leo et, porttitor mi. Fusce vitae dictum urna, eget aliquet odio. Nam maximus ipsum ex, et eleifend erat semper quis. Sed viverra leo elit, et porttitor ante imperdiet vel.
+
+            <p>Nulla facilisis ut velit at lacinia. Nulla lobortis tellus sed lorem convallis, eget convallis ipsum gravida. Vestibulum ut nulla elit. Maecenas laoreet nisi ac pellentesque aliquam. Vestibulum vel fringilla nisl. Nam et scelerisque tellus. Proin mattis vitae ante non imperdiet. Nulla sed felis gravida tortor scelerisque interdum quis quis sem. Praesent nunc enim, vulputate eu turpis dapibus, maximus sodales enim. Integer sem massa, dictum ut consequat in, convallis eget velit. Aenean convallis sapien a pellentesque cursus. Sed tempus massa eget odio fringilla, vel porta justo ornare. Nullam interdum felis eget interdum ultricies. Ut at pretium lacus.
+
+            <p>Nulla sed bibendum purus. Nullam hendrerit rutrum ligula, imperdiet lacinia augue lacinia eu. Praesent sollicitudin nisl sit amet metus efficitur volutpat. Interdum et malesuada fames ac ante ipsum primis in faucibus. Suspendisse potenti. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec viverra ipsum eget velit dapibus, eget cursus turpis posuere. Pellentesque a urna laoreet, pharetra magna non, ullamcorper tellus. Donec at erat ac ante dignissim mollis.
+
+            <p>Nulla dapibus ligula eget odio fermentum, congue pharetra risus imperdiet. Pellentesque volutpat libero sit amet justo sodales lacinia. Integer vitae euismod nisl. Ut pretium auctor tortor fringilla tempor. Proin non mollis arcu, vel ornare diam. Mauris varius aliquam lacus. Morbi nibh elit, eleifend sed nisl ac, feugiat porta magna. Suspendisse vitae pretium libero, sit amet semper nibh. Nam nec metus a metus egestas vulputate sit amet in odio. Vestibulum nulla sem, placerat sed elementum non, sodales ut ante. Quisque pellentesque lorem sit amet ultrices tempus. Morbi eu sapien vehicula ante vestibulum ornare. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+
+            <p>Quisque volutpat arcu est, in tincidunt lectus tempor ut. Phasellus sed semper ligula. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus leo sapien, dapibus et enim vel, dapibus posuere elit. Phasellus iaculis justo eget lacus fringilla, ut sagittis elit tincidunt. Duis vulputate ex dignissim sodales euismod. Nullam lorem dolor, tempor pretium tristique a, aliquet at dui. Nulla vel ultricies sapien, nec pretium justo. Vivamus arcu augue, faucibus et porttitor id, lacinia dignissim libero. Nullam eu dolor euismod, dapibus est nec, condimentum elit. Nunc fringilla mollis libero, quis consequat nisl egestas sed.
+
+            <p>Fusce pretium pellentesque ipsum. Morbi in faucibus augue. Maecenas placerat, leo sed consequat scelerisque, nisl enim euismod dui, efficitur congue quam magna eu purus. Nam a euismod ex. Curabitur accumsan mattis sollicitudin. Nulla sodales libero sit amet massa lobortis, non ornare lacus faucibus. Aliquam erat volutpat. Aliquam libero mi, pulvinar vel ligula vitae, posuere facilisis nisl. Proin vel fringilla nibh, non scelerisque mauris. Nulla pharetra suscipit consequat. Nullam nec dui nisl. Nullam nulla odio, placerat a ex vitae, dictum tempus enim. Nulla luctus pulvinar luctus.
+            -->
+            
+
+
+    <!-- Start menu and taskbar (embedded from example). For this page the taskbar
+         is pinned to the top of the viewport at all times; its container already
+         has the .taskbar-sticky class and body padding has been added to avoid
+         content being covered. -->
+    <div class="start-menu" id="spotlight-menu">
+        <div class="colored glass window">
+            <div class="title-bar">
+                <div class="custom spotlight-container window-body">
+                    <div id="spotlight-results"></div>
+                    <input type="text" id="spotlight-input" placeholder="Type here to search...">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="start-menu" id="start-menu">
+        <div class="colored glass window">
+            <div class="title-bar">
+                <div class="custom window-body">
+                    <div class="pet">
+                        <img src="../images/icons/pcIcon.png" alt="pet">
+                        <div role="tooltip">
+                            <p>Welcome to the site.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="custom menu-sidebar">
+                    <div class="top">
+                        <button>
+                            <a href="mailto:desk-feedback@glitchy.website?subject=Bug%20Report">Report a Bug </a>
+                        </button>
+                        <button>
+                            <a href="mailto:desk-feedback@glitchy.website?subject=Feature%20Request">Request a Feature </a>
+                        </button>
+                    </div>
+                    <div class="bottom">
+                        <button id="shutdown">Shut down</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="colored glass taskbar-container window taskbar-sticky" style="visibility: visible; --start-shift: 12px;">
+        <div class="title-bar" style="padding: 0;">
+            <div class="start-button" style="margin-top: 0.5rem;">
+                <img id="start-button" src="../../images/icons/startregular.png" alt="start" data-_regular-src="../images/icons/startregular.png" data-_hover-src="../images/icons/starthover.png">
+            </div>
+            <div id="taskbar" class="taskbar-btns">
+                <div class="taskbar-btn" style="width: auto; ">
+                    <div class="taskbar-item icon-text" style="padding-left: 0.5rem; padding-right: 0.5rem;" onclick="sessionStorage.setItem('skipIntro','1');window.location.href='../'">
+                        <img class="icon" src="../images/icons/home.png" alt="Home" style="min-width: 2.2rem; min-height: 2.2rem;">
+                        <p class="taskbar-label">Home</p>
+                    </div>
+                </div>
+                <div class="taskbar-btn active" style="width: auto;">
+                  <div class="taskbar-item icon-text" style="padding-left: 0.5rem; padding-right: 0.5rem;" >
+                        <img class="icon" src="../images/icons/download.png" alt="Download" style="min-width: 2.2rem; min-height: 2.2rem;">
+                        <p class="taskbar-label">Download</p>
+                    </div>
+                </div>
+                <div class="taskbar-btn" style="width: auto;">
+                    <div class="taskbar-item icon-text" style="padding-left: 0.5rem; padding-right: 0.5rem;" onclick="sessionStorage.setItem('skipIntro','1');window.location.href='/instructions'">
+                        <img class="icon" src="../images/icons/book.png" alt="Home" style="min-width: 2.1rem; min-height: 2.1rem;">
+                        <p class="taskbar-label">How to use / build?</p>
+                    </div>
+                </div>
+                <div class="taskbar-btn" style="width: auto;">
+                    <div class="taskbar-item icon-text" style="padding-left: 0.5rem; padding-right: 0.5rem;" onclick="sessionStorage.setItem('skipIntro','1');window.location.href='/progress'">
+                        <img class="icon" src="../images/icons/stats.png" alt="Home" style="min-width: 2.1rem; min-height: 2.1rem;">
+                        <p class="taskbar-label">Stats &amp; Progress</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="taskbar-icons">
+                <img src="../images/icons/tray/1.png" alt="icon1" class="small-icon sounds" id="volumeIcon">
+                <img src="../images/icons/music.webp" alt="icon4" class="small-icon music music-icon-flash" role="button" tabindex="0" aria-pressed="false">
+                <img src="../images/icons/tray/notification.png" alt="icon1" class="small-icon notification" role="button" tabindex="0" aria-pressed="false">
+            </div>
+
+            <div class="clock" id="clock" style="margin-left: 0px;"><div>6:08 PM</div><div>05/03/2026</div></div>
+            
+        </div>
+    </div><div class="taskbar-backdrop" style="pointer-events: none; position: absolute; z-index: 9998; left: 0px; top: 0px; width: 1340px; height: 45px; background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(8px);"></div>
+
+    
+
+    
+</main>
+
+
+
+
+
+    <!-- SVG Filter for Liquid Glass Effect -->
+    
+
+    
+    
+    
+    
+
+
+    <!-- SVG Filter for Liquid Glass Effect (copied from home.html) -->
+    <svg style="display: none" xmlns="http://www.w3.org/2000/svg">
+        <filter id="glass-blur" x="0" y="0" width="100%" height="100%" filterUnits="objectBoundingBox">
+            <feTurbulence type="fractalNoise" baseFrequency="0.003 0.007" numOctaves="1" result="turbulence" />
+            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="200" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+    </svg>
+
+    <!-- taskbar-backdrop script not needed when the bar is permanently fixed -->
+    <!-- <script src="/taskbar-backdrop-embed.js"></script> -->
+    <script src="/home.js"></script>
+</body></html>
