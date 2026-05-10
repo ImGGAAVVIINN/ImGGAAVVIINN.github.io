@@ -1,5 +1,13 @@
-import gsap from 'https://cdn.skypack.dev/gsap@3.13.0'
-import Draggable from 'https://cdn.skypack.dev/gsap@3.13.0/Draggable'
+const gsap = window.gsap
+const Draggable = window.Draggable
+
+if (!gsap) {
+  throw new Error('GSAP is not available on window')
+}
+
+if (!Draggable) {
+  throw new Error('GSAP Draggable is not available on window')
+}
 
 gsap.registerPlugin(Draggable)
 
